@@ -1,8 +1,6 @@
 spring:
   profiles:
     active: dev
-    include:
-      - base
   datasource:
     hikari:
       maximum-pool-size: 4
