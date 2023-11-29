@@ -1,9 +1,14 @@
 package com.api.trip.domain.item.model;
 
+import com.api.trip.domain.Interestitem.model.InterestItem;
+import com.api.trip.domain.itemtag.model.ItemTag;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -34,4 +39,7 @@ public class Item {
 
     @Column(nullable = false)
     private Integer viewCount;
+
+    @OneToMany(mappedBy = "item")
+    private List<ItemTag> tags = new ArrayList<>();
 }
