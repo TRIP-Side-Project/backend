@@ -1,6 +1,7 @@
 package com.api.trip.domain.article.model;
 
 import com.api.trip.domain.articletag.model.ArticleTag;
+import com.api.trip.domain.comment.domain.Comment;
 import com.api.trip.domain.itemtag.model.ItemTag;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -33,5 +34,8 @@ public class Article {
 
     @OneToMany(mappedBy = "article")
     private List<ArticleTag> tags = new ArrayList<>();
+
+    @OneToMany(mappedBy = "article")
+    private List<Comment> comments = new ArrayList<>();
 
 }

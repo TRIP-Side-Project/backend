@@ -1,6 +1,8 @@
 package com.api.trip.domain.member.model;
 
 import com.api.trip.domain.Interestitem.model.InterestItem;
+import com.api.trip.domain.articletag.model.ArticleTag;
+import com.api.trip.domain.comment.domain.Comment;
 import com.api.trip.domain.interestarticle.model.InterestArticle;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -37,5 +39,8 @@ public class Member {
 
     @OneToMany(mappedBy = "member")
     private List<InterestArticle> interestArticles = new ArrayList<>();
+
+    @OneToMany(mappedBy = "writer")
+    private List<Comment> comments = new ArrayList<>();
 
 }

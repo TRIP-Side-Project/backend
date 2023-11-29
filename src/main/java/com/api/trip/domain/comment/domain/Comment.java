@@ -1,6 +1,10 @@
 package com.api.trip.domain.comment.domain;
 
+import com.api.trip.domain.article.model.Article;
 import com.api.trip.domain.article.model.ArticleType;
+import com.api.trip.domain.item.model.Item;
+import com.api.trip.domain.member.model.Member;
+import com.api.trip.domain.tag.model.Tag;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -21,5 +25,12 @@ public class Comment {
     @Column(nullable = false)
     private Long parentId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "writer_id", nullable = false)
+    private Member writer;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "article_id", nullable = false)
+    private Article article;
 
 }
