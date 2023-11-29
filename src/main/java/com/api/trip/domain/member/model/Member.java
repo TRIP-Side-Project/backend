@@ -1,9 +1,11 @@
 package com.api.trip.domain.member.model;
 
 import com.api.trip.domain.Interestitem.model.InterestItem;
+import com.api.trip.domain.article.model.Article;
 import com.api.trip.domain.articletag.model.ArticleTag;
 import com.api.trip.domain.comment.domain.Comment;
 import com.api.trip.domain.interestarticle.model.InterestArticle;
+import com.api.trip.domain.item.model.Item;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -34,13 +36,21 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private MemberRole role;
 
+    @OneToMany(mappedBy = "writer")
+    private List<Item> items = new ArrayList<>();
+
+    @OneToMany(mappedBy = "writer")
+    private List<Article> articles = new ArrayList<>();
+
+    @OneToMany(mappedBy = "writer")
+    private List<Comment> comments = new ArrayList<>();
+
     @OneToMany(mappedBy = "member")
     private List<InterestItem> interestItems = new ArrayList<>();
 
     @OneToMany(mappedBy = "member")
     private List<InterestArticle> interestArticles = new ArrayList<>();
 
-    @OneToMany(mappedBy = "writer")
-    private List<Comment> comments = new ArrayList<>();
+
 
 }

@@ -2,6 +2,7 @@ package com.api.trip.domain.item.model;
 
 import com.api.trip.domain.Interestitem.model.InterestItem;
 import com.api.trip.domain.itemtag.model.ItemTag;
+import com.api.trip.domain.member.model.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -39,6 +40,10 @@ public class Item {
 
     @Column(nullable = false)
     private Integer viewCount;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "writer_id", nullable = false)
+    private Member writer;
 
     @OneToMany(mappedBy = "item")
     private List<ItemTag> tags = new ArrayList<>();

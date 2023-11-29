@@ -3,6 +3,7 @@ package com.api.trip.domain.article.model;
 import com.api.trip.domain.articletag.model.ArticleTag;
 import com.api.trip.domain.comment.domain.Comment;
 import com.api.trip.domain.itemtag.model.ItemTag;
+import com.api.trip.domain.member.model.Member;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -31,6 +32,10 @@ public class Article {
 
     @Enumerated(EnumType.STRING)
     private ArticleType type;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "writer_id", nullable = false)
+    private Member writer;
 
     @OneToMany(mappedBy = "article")
     private List<ArticleTag> tags = new ArrayList<>();
