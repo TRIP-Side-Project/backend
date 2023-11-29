@@ -1,9 +1,13 @@
 package com.api.trip.domain.member.model;
 
+import com.api.trip.domain.Interestitem.model.InterestItem;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -26,5 +30,8 @@ public class Member {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private MemberRole role;
+
+    @OneToMany(mappedBy = "item")
+    private List<InterestItem> interestItems = new ArrayList<>();
 
 }
