@@ -4,11 +4,6 @@ spring:
   datasource:
     hikari:
       maximum-pool-size: 4
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  jpa:
-    database: mysql
-    database-platform: org.hibernate.dialect.MySQL8Dialect
-
 
 logging:
   level:
