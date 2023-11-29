@@ -1,9 +1,14 @@
 package com.api.trip.domain.article.model;
 
+import com.api.trip.domain.articletag.model.ArticleTag;
+import com.api.trip.domain.itemtag.model.ItemTag;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -25,5 +30,8 @@ public class Article {
 
     @Enumerated(EnumType.STRING)
     private ArticleType type;
+
+    @OneToMany(mappedBy = "article")
+    private List<ArticleTag> tags = new ArrayList<>();
 
 }
