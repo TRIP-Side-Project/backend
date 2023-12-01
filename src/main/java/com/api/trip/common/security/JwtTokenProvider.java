@@ -78,6 +78,7 @@ public class JwtTokenProvider {
         Claims claims = parseToken(accessToken);
 
         /**
+         * TODO 예외처리
          * if (claims.get("roles") == null)
          * 권한정보 없을 떄 예외처리
          */
