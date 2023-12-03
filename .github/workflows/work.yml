@@ -1,0 +1,63 @@
+name: 'work'
+
+on:
+  push:
+    branches:
+      - 'main'
+
+jobs:
+  build:
+    name: 이미지 빌드 및 도커허브 푸시
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true && github.base_ref == 'main'
+    needs: update
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: refs/heads/main
+      - name: application-prod.yml 생성
+        env:
+          ACTIONS_STEP_DEBUG: true
+          APPLICATION_PROD: ${{ secrets.APPLICATION_PROD_YML }}
+        run: echo "$APPLICATION_PROD" > src/main/resources/application-prod.yml
+      - name: jdk 17 설치
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+      - name: gradlew 실행 권한 부여
+        run: chmod +x gradlew
+      - name: gradle 빌드
+        run: ./gradlew build --no-daemon
+      - name: build 폴더를 캐시에 저장
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifact
+          path: build
+          retention-days: 1
+      - name: 도커 이미지 빌드 및 푸시
+        run: |
+          docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_PASSWORD }}
+          docker build -t ${{ secrets.DOCKER_REPO }}/trip .
+          docker push ${{ secrets.DOCKER_REPO }}/trip
+  deploy:
+    name: 원격 서버에 배포
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true && github.base_ref == 'main'
+    needs: build
+    steps:
+      - name: 원격 서버에 배포하기
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: 2222
+          script: |
+            docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_PASSWORD }}
+            docker stop trip_app || true
+            docker rm trip_app || true
+            docker pull ${{ secrets.DOCKER_REPO }}/trip
+            docker run --name=trip_app --restart unless-stopped \
+            -p 80:8080 -e TZ=Asia/Seoul -d ${{ secrets.DOCKER_REPO }}/trip
