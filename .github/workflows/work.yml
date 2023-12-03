@@ -9,7 +9,6 @@ jobs:
   update:
     name: 프로젝트 버전 업데이트
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true && github.base_ref == 'main'
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -23,7 +22,6 @@ jobs:
   build:
     name: 이미지 빌드 및 도커허브 푸시
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true && github.base_ref == 'main'
     needs: update
     steps:
       - uses: actions/checkout@v3
@@ -58,7 +56,6 @@ jobs:
   deploy:
     name: 원격 서버에 배포
     runs-on: ubuntu-latest
-    if: github.event.pull_request.merged == true && github.base_ref == 'main'
     needs: build
     steps:
       - name: 원격 서버에 배포하기
