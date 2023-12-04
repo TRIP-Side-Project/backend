@@ -1,6 +1,9 @@
 package com.api.trip.common.security;
 
 
+import com.api.trip.common.security.dto.AuthenticationMember;
+import com.api.trip.domain.member.model.Member;
+import com.api.trip.domain.member.repository.MemberRepository;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -26,13 +29,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class JwtTokenProvider {
-    /**
-     * JWT 생성, 검증, 변환
-     */
 
     @Value("${custom.jwt.token.access-expiration-time}")
     private long accessExpirationTime;
-
     private final Key key;
 
     @Autowired
@@ -43,14 +42,14 @@ public class JwtTokenProvider {
 
     public JwtToken createJwtToken(String email, String authorities) {
 
-        Date expirationTime = new Date(System.currentTimeMillis() + accessExpirationTime);
         Claims claims = Jwts.claims().setSubject(email);
-        claims.put("roles", authorities); //
+        claims.put("roles", authorities);
 
         String accessToken = Jwts.builder()
-                .setClaims(claims) // 아이디, 권한정보
-                .setExpiration(expirationTime) // 만료기간
-                .signWith(SignatureAlgorithm.HS256, key)
+                .setClaims(claims)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + accessExpirationTime))
+                .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
         return new JwtToken(accessToken, "refreshToken");
@@ -58,10 +57,9 @@ public class JwtTokenProvider {
 
     public boolean validateAccessToken(String accessToken) {
         try {
-                parseToken(accessToken);
-                return true;
-            }
-        catch (final JwtException | IllegalArgumentException exception) {
+            parseToken(accessToken);
+            return true;
+        } catch (final JwtException | IllegalArgumentException exception) {
             return false;
         }
     }
@@ -70,19 +68,13 @@ public class JwtTokenProvider {
         return Jwts.parserBuilder()
                 .setSigningKey(key)
                 .build()
-                .parseClaimsJws(token).getBody();
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     public Authentication getAuthenticationByAccessToken(String accessToken) {
 
         Claims claims = parseToken(accessToken);
-
-        /**
-         * TODO 예외처리
-         * if (claims.get("roles") == null)
-         * 권한정보 없을 떄 예외처리
-         */
-
 
         Collection<? extends GrantedAuthority> authorities =
                 Arrays.stream(claims.get("roles").toString().split(","))
@@ -91,6 +83,5 @@ public class JwtTokenProvider {
 
         UserDetails principal = new User(claims.getSubject(), "", authorities);
         return new UsernamePasswordAuthenticationToken(principal, "", authorities);
-
     }
 }

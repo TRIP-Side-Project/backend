@@ -4,6 +4,9 @@ spring:
   datasource:
     hikari:
       maximum-pool-size: 4
+  h2:
+    console:
+      enabled: true
 
 
 logging:
