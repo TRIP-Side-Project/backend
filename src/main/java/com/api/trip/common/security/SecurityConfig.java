@@ -28,7 +28,7 @@ public class SecurityConfig {
         return http
                 .authorizeHttpRequests(
                         auth -> auth
-                                .requestMatchers("/api/members/login", "/api/members/join").permitAll()
+                                .requestMatchers("/api/members/login", "/api/members/join", "/api/members/info").permitAll()
                                 .requestMatchers(PathRequest.toH2Console()).permitAll()
                                 .anyRequest().authenticated()
 
@@ -42,9 +42,6 @@ public class SecurityConfig {
                 .addFilterBefore(new JwtTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
-
-
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {
