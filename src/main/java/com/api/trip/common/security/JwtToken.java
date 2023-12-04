@@ -1,15 +1,14 @@
 package com.api.trip.common.security;
 
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public class JwtToken {
-    private String accessToken;
-    private String refreshToken;
 
-    public JwtToken(String accessToken, String refreshToken) {
-        this.accessToken = accessToken;
-        this.refreshToken = refreshToken;
-    }
+    private final String accessToken;
+    private final String refreshToken;
+
 }
