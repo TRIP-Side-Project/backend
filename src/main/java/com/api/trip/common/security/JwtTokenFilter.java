@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -21,14 +22,28 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String accessToken = request.getHeader("accessToken");
+        String header = request.getHeader("accessToken");
 
+        if (header == null || !header.startsWith("Bearer ")) {
+            log.error("Error occurs while getting header. header is null or invalid {}", request.getRequestURL());
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-            if (jwtTokenProvider.validateAccessToken(accessToken)) { // 토큰이 유효한 경우 and 로그인 상태
-                Authentication authentication = jwtTokenProvider.getAuthenticationByAccessToken(accessToken);
-                SecurityContextHolder.getContext().setAuthentication(authentication); // 세션설정
-            }
+        String accessToken = header.split(" ")[1].trim();
+
+        if (jwtTokenProvider.validateAccessToken(accessToken)) {
+            Authentication authentication = jwtTokenProvider.getAuthenticationByAccessToken(accessToken);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+        }
 
         filterChain.doFilter(request, response);
+    }
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String[] excludePath = {"/api/members/join", "/api/members/login"};
+        String path = request.getRequestURI();
+        return Arrays.stream(excludePath).anyMatch(path::startsWith);
     }
 }

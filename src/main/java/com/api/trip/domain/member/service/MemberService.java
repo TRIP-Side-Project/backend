@@ -27,7 +27,6 @@ public class MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
 
-
     public void join(JoinRequest joinRequest) {
         Member member = Member.of(joinRequest, passwordEncoder.encode(joinRequest.getPassword()));
         memberRepository.save(member);
@@ -40,12 +39,8 @@ public class MemberService {
         String authorities = authentication.getAuthorities().stream()
                 .map(a -> "ROLE_" + a.getAuthority())
                 .collect(Collectors.joining(","));
-        // 인증 성공
-        // 토큰 생성
-        JwtToken jwtToken = jwtTokenProvider.createJwtToken(authentication.getName(), authorities);
 
-
-
+        JwtToken jwtToken = jwtTokenProvider.createJwtToken(loginRequest.getEmail(), authorities);
         return LoginResponse.of(jwtToken);
     }
 }

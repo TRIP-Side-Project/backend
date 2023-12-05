@@ -27,13 +27,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         return http
                 .authorizeHttpRequests(
-                        auth -> auth
-                                .requestMatchers("/api/members/login", "/api/members/join").permitAll()
-                                .requestMatchers(PathRequest.toH2Console()).permitAll()
-                                .anyRequest().authenticated()
-
+                        auth -> auth.anyRequest().permitAll()
                 )
-                .csrf(csrf -> csrf.ignoringRequestMatchers(PathRequest.toH2Console()).disable())
+                .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .headers((headers) -> headers
@@ -42,9 +38,6 @@ public class SecurityConfig {
                 .addFilterBefore(new JwtTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
-
-
-
 
     @Bean
     public PasswordEncoder passwordEncoder() {
