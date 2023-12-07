@@ -40,4 +40,13 @@ public class Article {
         this.content = content;
         this.viewCount = viewCount;
     }
+
+    public void modify(String title, String content) {
+        this.title = title;
+        this.content = content;
+    }
+
+    public void increaseViewCount() {
+        this.viewCount++;
+    }
 }
