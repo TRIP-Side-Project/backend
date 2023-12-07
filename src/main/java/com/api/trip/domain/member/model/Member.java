@@ -1,6 +1,5 @@
 package com.api.trip.domain.member.model;
 
-import com.api.trip.domain.member.controller.dto.JoinRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -29,6 +28,8 @@ public class Member {
     @Enumerated(EnumType.STRING)
     private MemberRole role;
 
+    private boolean emailAuth;
+
     @Builder
     private Member(String email, String nickname, String password){
         this.email = email;
@@ -37,11 +38,8 @@ public class Member {
         this.role = MemberRole.MEMBER;
     }
 
-    public static Member of(JoinRequest joinRequest, String password){
-        return Member.builder()
-                .email(joinRequest.getEmail())
-                .nickname(joinRequest.getNickname())
-                .password(password)
-                .build();
+    // 이메일 인증 상태 변경 메서드
+    public void emailVerifiedSuccess() {
+        this.emailAuth = true;
     }
 }
