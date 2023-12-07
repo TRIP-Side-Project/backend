@@ -7,7 +7,8 @@ spring:
   h2:
     console:
       enabled: true
-
+  mail:
+    host: smtp.gmail.com
 
 logging:
   level:
