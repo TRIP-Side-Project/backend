@@ -43,4 +43,8 @@ public class Member extends BaseTimeEntity {
     public void emailVerifiedSuccess() {
         this.emailAuth = true;
     }
+
+    public void changePassword(String password) {
+        this.password = password;
+    }
 }
