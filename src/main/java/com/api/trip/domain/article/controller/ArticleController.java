@@ -36,21 +36,21 @@ public class ArticleController {
     }
 
     @PatchMapping("/{articleId}")
-    public ResponseEntity<Void> updateArticle(@PathVariable("articleId") Long articleId, @RequestBody UpdateArticleRequest request) {
+    public ResponseEntity<Void> updateArticle(@PathVariable Long articleId, @RequestBody UpdateArticleRequest request) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         articleService.updateArticle(articleId, request, email);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{articleId}")
-    public ResponseEntity<Void> deleteArticle(@PathVariable("articleId") Long articleId) {
+    public ResponseEntity<Void> deleteArticle(@PathVariable Long articleId) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         articleService.deleteArticle(articleId, email);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/{articleId}")
-    public ResponseEntity<ReadArticleResponse> readArticle(@PathVariable("articleId") Long articleId) {
+    public ResponseEntity<ReadArticleResponse> readArticle(@PathVariable Long articleId) {
         return ResponseEntity.ok(articleService.readArticle(articleId));
     }
 
