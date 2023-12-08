@@ -1,13 +1,12 @@
 package com.api.trip.domain.member.controller;
 
+import com.api.trip.common.security.util.SecurityUtils;
 import com.api.trip.domain.email.service.EmailService;
-import com.api.trip.domain.member.controller.dto.EmailResponse;
-import com.api.trip.domain.member.controller.dto.JoinRequest;
-import com.api.trip.domain.member.controller.dto.LoginRequest;
-import com.api.trip.domain.member.controller.dto.LoginResponse;
+import com.api.trip.domain.member.controller.dto.*;
 import com.api.trip.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -31,6 +30,7 @@ public class MemberController {
     }
 
     // 인증 메일 전송
+    // TODO: 리팩토링 예정..
     @PostMapping("/send-email/{email}")
     public void sendAuthEmail(@PathVariable String email) {
         emailService.send(email, emailService.createEmailAuth(email));
@@ -39,5 +39,12 @@ public class MemberController {
     @GetMapping("/auth-email/{email}/{authToken}")
     public ResponseEntity<EmailResponse> emailAndAuthToken(@PathVariable String email, @PathVariable String authToken) {
         return ResponseEntity.ok().body(emailService.authEmail(email, authToken));
+    }
+
+    @PreAuthorize("isAnonymous()")
+    @PostMapping("/find/password")
+    public ResponseEntity<Void> sendNewPassword(@RequestBody FindPasswordRequest findPasswordRequest) {
+        emailService.sendNewPassword(findPasswordRequest.getEmail());
+        return ResponseEntity.ok().build();
     }
 }

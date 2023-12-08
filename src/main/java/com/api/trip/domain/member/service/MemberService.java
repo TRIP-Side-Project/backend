@@ -18,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.SecureRandom;
 import java.util.stream.Collectors;
 
 @Service
@@ -56,5 +57,16 @@ public class MemberService {
 
         JwtToken jwtToken = jwtTokenProvider.createJwtToken(loginRequest.getEmail(), authorities);
         return LoginResponse.of(jwtToken);
+    }
+
+    // 회원의 비밀번호를 메일로 전송한 임시 비밀번호로 변경
+    public void changePassword(String email, String password) {
+        Member member = memberRepository.findByEmail(email).orElseThrow();
+        member.changePassword(passwordEncoder.encode(password));
+    }
+
+    @Transactional(readOnly = true)
+    public Member getMemberByEmail(String email) {
+        return memberRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("가입된 회원이 아닙니다!"));
     }
 }
