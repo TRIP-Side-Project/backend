@@ -1,5 +1,6 @@
 package com.api.trip.domain.email.model;
 
+import com.api.trip.common.auditing.entity.BaseTimeEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -14,7 +15,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class EmailAuth {
+public class EmailAuth extends BaseTimeEntity {
 
     private static final Long MAX_EXPIRE_TIME = 5L; // 링크 유효 기간 5분
 
