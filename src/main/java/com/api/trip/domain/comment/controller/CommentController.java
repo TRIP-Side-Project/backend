@@ -1,7 +1,8 @@
 package com.api.trip.domain.comment.controller;
 
-import com.api.trip.domain.comment.controller.dto.CommentResponse;
 import com.api.trip.domain.comment.controller.dto.CreateCommentRequest;
+import com.api.trip.domain.comment.controller.dto.GetCommentsResponse;
+import com.api.trip.domain.comment.controller.dto.GetMyCommentsResponse;
 import com.api.trip.domain.comment.controller.dto.UpdateCommentRequest;
 import com.api.trip.domain.comment.service.CommentService;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +16,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/comments")
@@ -46,12 +45,12 @@ public class CommentController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CommentResponse>> getComments(Long articleId) {
+    public ResponseEntity<GetCommentsResponse> getComments(Long articleId) {
         return ResponseEntity.ok(commentService.getComments(articleId));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<List<CommentResponse>> getMyComments() {
+    public ResponseEntity<GetMyCommentsResponse> getMyComments() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return ResponseEntity.ok(commentService.getMyComments(email));
     }
