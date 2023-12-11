@@ -17,9 +17,9 @@ public class GetCommentsResponse {
 
     private List<CommentDto> comments;
 
-    public static GetCommentsResponse fromEntities(List<Comment> comments) {
+    public static GetCommentsResponse of(List<Comment> comments) {
         List<CommentDto> commentDtos = comments.stream()
-                .map(CommentDto::fromEntity)
+                .map(CommentDto::of)
                 .toList();
 
         Map<Long, List<CommentDto>> groupByParentId = commentDtos.stream()
@@ -53,7 +53,7 @@ public class GetCommentsResponse {
         @Setter
         private List<CommentDto> children;
 
-        private static CommentDto fromEntity(Comment comment) {
+        private static CommentDto of(Comment comment) {
             return builder()
                     .commentId(comment.getId())
                     .writerId(comment.getWriter().getId())

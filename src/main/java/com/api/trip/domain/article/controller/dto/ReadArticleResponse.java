@@ -20,7 +20,7 @@ public class ReadArticleResponse {
     private long viewCount;
     private LocalDateTime createdAt;
 
-    public static ReadArticleResponse fromEntity(Article article) {
+    public static ReadArticleResponse of(Article article) {
         Member writer = article.getWriter();
         return builder()
                 .articleId(article.getId())

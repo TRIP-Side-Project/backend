@@ -22,8 +22,8 @@ public class GetArticlesResponse {
     private int resultSize;
     private List<ArticleDto> result;
 
-    public static GetArticlesResponse fromEntityPage(Page<Article> articlePage) {
-        Page<ArticleDto> articleDtoPage = articlePage.map(ArticleDto::fromEntity);
+    public static GetArticlesResponse of(Page<Article> articlePage) {
+        Page<ArticleDto> articleDtoPage = articlePage.map(ArticleDto::of);
         return builder()
                 .totalPages(articleDtoPage.getTotalPages())
                 .totalElements(articleDtoPage.getTotalElements())
@@ -47,7 +47,7 @@ public class GetArticlesResponse {
         private String writerRole;
         private LocalDateTime createdAt;
 
-        private static ArticleDto fromEntity(Article article) {
+        private static ArticleDto of(Article article) {
             Member writer = article.getWriter();
             return builder()
                     .articleId(article.getId())

@@ -14,9 +14,9 @@ public class GetMyCommentsResponse {
 
     private List<CommentDto> comments;
 
-    public static GetMyCommentsResponse fromEntities(List<Comment> comments) {
+    public static GetMyCommentsResponse of(List<Comment> comments) {
         List<CommentDto> commentDtos = comments.stream()
-                .map(CommentDto::fromEntity)
+                .map(CommentDto::of)
                 .toList();
 
         return new GetMyCommentsResponse(commentDtos);
@@ -34,7 +34,7 @@ public class GetMyCommentsResponse {
         private Long parentId;
         private LocalDateTime createdAt;
 
-        private static CommentDto fromEntity(Comment comment) {
+        private static CommentDto of(Comment comment) {
             return builder()
                     .commentId(comment.getId())
                     .writerId(comment.getWriter().getId())

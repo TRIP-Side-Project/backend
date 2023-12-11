@@ -76,7 +76,7 @@ public class CommentService {
 
         List<Comment> comments = commentRepository.findComments(article);
 
-        return GetCommentsResponse.fromEntities(comments);
+        return GetCommentsResponse.of(comments);
     }
 
     @Transactional(readOnly = true)
@@ -85,6 +85,6 @@ public class CommentService {
 
         List<Comment> comments = commentRepository.findAllByWriterOrderByIdDesc(member);
 
-        return GetMyCommentsResponse.fromEntities(comments);
+        return GetMyCommentsResponse.of(comments);
     }
 }

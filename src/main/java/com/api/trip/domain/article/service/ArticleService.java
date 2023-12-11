@@ -64,14 +64,14 @@ public class ArticleService {
 
         article.increaseViewCount();
 
-        return ReadArticleResponse.fromEntity(article);
+        return ReadArticleResponse.of(article);
     }
 
     @Transactional(readOnly = true)
     public GetArticlesResponse getArticles(Pageable pageable, String filter) {
         Page<Article> articlePage = articleRepository.findArticles(pageable, filter);
 
-        return GetArticlesResponse.fromEntityPage(articlePage);
+        return GetArticlesResponse.of(articlePage);
     }
 
     @Transactional(readOnly = true)
@@ -80,6 +80,6 @@ public class ArticleService {
 
         List<Article> articles = articleRepository.findAllByWriterOrderByIdDesc(member);
 
-        return GetMyArticlesResponse.fromEntities(articles);
+        return GetMyArticlesResponse.of(articles);
     }
 }

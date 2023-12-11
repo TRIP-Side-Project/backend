@@ -15,9 +15,9 @@ public class GetMyArticlesResponse {
 
     private List<ArticleDto> articles;
 
-    public static GetMyArticlesResponse fromEntities(List<Article> articles) {
+    public static GetMyArticlesResponse of(List<Article> articles) {
         List<ArticleDto> articleDtos = articles.stream()
-                .map(ArticleDto::fromEntity)
+                .map(ArticleDto::of)
                 .toList();
 
         return new GetMyArticlesResponse(articleDtos);
@@ -34,7 +34,7 @@ public class GetMyArticlesResponse {
         private String writerRole;
         private LocalDateTime createdAt;
 
-        private static ArticleDto fromEntity(Article article) {
+        private static ArticleDto of(Article article) {
             Member writer = article.getWriter();
             return builder()
                     .articleId(article.getId())
