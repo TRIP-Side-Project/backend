@@ -28,11 +28,7 @@ public class ArticleService {
     public Long createArticle(CreateArticleRequest request, String email) {
         Member member = memberRepository.findByEmail(email).orElseThrow();
 
-        Article article = Article.builder()
-                .writer(member)
-                .title(request.getTitle())
-                .content(request.getContent())
-                .build();
+        Article article = request.toEntity(member);
 
         return articleRepository.save(article).getId();
     }

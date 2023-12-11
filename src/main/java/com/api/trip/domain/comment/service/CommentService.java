@@ -38,12 +38,7 @@ public class CommentService {
             }
         }
 
-        Comment comment = Comment.builder()
-                .writer(member)
-                .article(article)
-                .content(request.getContent())
-                .parent(parent)
-                .build();
+        Comment comment = request.toEntity(member, article, parent);
 
         return commentRepository.save(comment).getId();
     }
