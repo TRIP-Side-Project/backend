@@ -1,11 +1,12 @@
 package com.api.trip.domain.article.controller;
 
 import com.api.trip.domain.article.controller.dto.CreateArticleRequest;
+import com.api.trip.domain.article.controller.dto.GetArticlesResponse;
+import com.api.trip.domain.article.controller.dto.GetMyArticlesResponse;
 import com.api.trip.domain.article.controller.dto.ReadArticleResponse;
 import com.api.trip.domain.article.controller.dto.UpdateArticleRequest;
 import com.api.trip.domain.article.service.ArticleService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/articles")
@@ -55,15 +54,15 @@ public class ArticleController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ReadArticleResponse>> getArticles(
-            @PageableDefault(size = 8, page = 0) Pageable pageable,
+    public ResponseEntity<GetArticlesResponse> getArticles(
+            @PageableDefault(size = 8) Pageable pageable,
             @RequestParam(value = "filter", required = false) String filter
     ) {
         return ResponseEntity.ok(articleService.getArticles(pageable, filter));
     }
 
     @GetMapping("/me")
-    public ResponseEntity<List<ReadArticleResponse>> getMyArticles() {
+    public ResponseEntity<GetMyArticlesResponse> getMyArticles() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return ResponseEntity.ok(articleService.getMyArticles(email));
     }
