@@ -9,6 +9,10 @@ spring:
       enabled: true
   mail:
     host: smtp.gmail.com
+  data:
+    web:
+      pageable:
+        one-indexed-parameters: true
 
 logging:
   level:
