@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,6 +58,16 @@ public class MemberService {
 
         JwtToken jwtToken = jwtTokenProvider.createJwtToken(loginRequest.getEmail(), authorities);
         return LoginResponse.of(jwtToken);
+    }
+
+    public void deleteMember(String email, String password) {
+        Member member = getMemberByEmail(email);
+
+        if (!passwordEncoder.matches(password, member.getPassword())) {
+            throw new RuntimeException("비밀번호가 일치하지 않습니다.");
+        }
+
+        memberRepository.deleteById(member.getId());
     }
 
     // 회원의 비밀번호를 메일로 전송한 임시 비밀번호로 변경

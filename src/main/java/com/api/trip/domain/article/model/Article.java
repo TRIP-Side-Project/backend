@@ -1,5 +1,6 @@
 package com.api.trip.domain.article.model;
 
+import com.api.trip.common.auditing.entity.BaseTimeEntity;
 import com.api.trip.domain.member.model.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -16,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Article {
+public class Article extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

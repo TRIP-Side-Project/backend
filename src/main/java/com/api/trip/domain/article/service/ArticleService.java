@@ -1,6 +1,8 @@
 package com.api.trip.domain.article.service;
 
 import com.api.trip.domain.article.controller.dto.CreateArticleRequest;
+import com.api.trip.domain.article.controller.dto.GetArticlesResponse;
+import com.api.trip.domain.article.controller.dto.GetMyArticlesResponse;
 import com.api.trip.domain.article.controller.dto.ReadArticleResponse;
 import com.api.trip.domain.article.controller.dto.UpdateArticleRequest;
 import com.api.trip.domain.article.model.Article;
@@ -26,11 +28,7 @@ public class ArticleService {
     public Long createArticle(CreateArticleRequest request, String email) {
         Member member = memberRepository.findByEmail(email).orElseThrow();
 
-        Article article = Article.builder()
-                .writer(member)
-                .title(request.getTitle())
-                .content(request.getContent())
-                .build();
+        Article article = request.toEntity(member);
 
         return articleRepository.save(article).getId();
     }
@@ -62,23 +60,22 @@ public class ArticleService {
 
         article.increaseViewCount();
 
-        return ReadArticleResponse.fromEntity(article);
+        return ReadArticleResponse.of(article);
     }
 
     @Transactional(readOnly = true)
-    public Page<ReadArticleResponse> getArticles(Pageable pageable, String filter) {
-        return articleRepository.findArticles(pageable, filter)
-                .map(ReadArticleResponse::fromEntity);
+    public GetArticlesResponse getArticles(Pageable pageable, String filter) {
+        Page<Article> articlePage = articleRepository.findArticles(pageable, filter);
+
+        return GetArticlesResponse.of(articlePage);
     }
 
     @Transactional(readOnly = true)
-    public List<ReadArticleResponse> getMyArticles(String email) {
+    public GetMyArticlesResponse getMyArticles(String email) {
         Member member = memberRepository.findByEmail(email).orElseThrow();
 
         List<Article> articles = articleRepository.findAllByWriterOrderByIdDesc(member);
 
-        return articles.stream()
-                .map(ReadArticleResponse::fromEntity)
-                .toList();
+        return GetMyArticlesResponse.of(articles);
     }
 }

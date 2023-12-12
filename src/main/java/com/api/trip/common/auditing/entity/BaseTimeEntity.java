@@ -23,4 +23,6 @@ public class BaseTimeEntity {
     @Column(nullable = false)
     private LocalDateTime modifiedAt;
 
+    private LocalDateTime deletedAt;
+
 }

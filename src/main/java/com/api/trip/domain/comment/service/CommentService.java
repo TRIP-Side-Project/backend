@@ -2,8 +2,9 @@ package com.api.trip.domain.comment.service;
 
 import com.api.trip.domain.article.model.Article;
 import com.api.trip.domain.article.repository.ArticleRepository;
-import com.api.trip.domain.comment.controller.dto.CommentResponse;
 import com.api.trip.domain.comment.controller.dto.CreateCommentRequest;
+import com.api.trip.domain.comment.controller.dto.GetCommentsResponse;
+import com.api.trip.domain.comment.controller.dto.GetMyCommentsResponse;
 import com.api.trip.domain.comment.controller.dto.UpdateCommentRequest;
 import com.api.trip.domain.comment.model.Comment;
 import com.api.trip.domain.comment.repository.CommentRepository;
@@ -14,8 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -39,12 +38,7 @@ public class CommentService {
             }
         }
 
-        Comment comment = Comment.builder()
-                .writer(member)
-                .article(article)
-                .content(request.getContent())
-                .parent(parent)
-                .build();
+        Comment comment = request.toEntity(member, article, parent);
 
         return commentRepository.save(comment).getId();
     }
@@ -72,37 +66,20 @@ public class CommentService {
     }
 
     @Transactional(readOnly = true)
-    public List<CommentResponse> getComments(Long articleId) {
+    public GetCommentsResponse getComments(Long articleId) {
         Article article = articleRepository.findById(articleId).orElseThrow();
 
         List<Comment> comments = commentRepository.findComments(article);
 
-        List<CommentResponse> commentResponses = comments.stream()
-                .map(CommentResponse::fromEntity)
-                .toList();
-
-        Map<Long, List<CommentResponse>> groupByParentId = commentResponses.stream()
-                .collect(Collectors.groupingBy(commentResponse -> commentResponse.getParentId() != null ? commentResponse.getParentId() : 0));
-
-        return commentResponses.stream()
-                .filter(commentResponse -> {
-                    if (commentResponse.getParentId() == null) {
-                        commentResponse.setComments(groupByParentId.get(commentResponse.getCommentId()));
-                        return true;
-                    }
-                    return false;
-                })
-                .toList();
+        return GetCommentsResponse.of(comments);
     }
 
     @Transactional(readOnly = true)
-    public List<CommentResponse> getMyComments(String email) {
+    public GetMyCommentsResponse getMyComments(String email) {
         Member member = memberRepository.findByEmail(email).orElseThrow();
 
         List<Comment> comments = commentRepository.findAllByWriterOrderByIdDesc(member);
 
-        return comments.stream()
-                .map(CommentResponse::fromEntity)
-                .toList();
+        return GetMyCommentsResponse.of(comments);
     }
 }
