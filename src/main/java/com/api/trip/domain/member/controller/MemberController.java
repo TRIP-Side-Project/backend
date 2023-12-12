@@ -47,4 +47,14 @@ public class MemberController {
         emailService.sendNewPassword(findPasswordRequest.getEmail());
         return ResponseEntity.ok().build();
     }
+
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteMember(@RequestBody DeleteRequest deleteRequest) {
+        String email = SecurityUtils.getCurrentUsername();
+        memberService.deleteMember(email, deleteRequest.getPassword());
+
+        return ResponseEntity.ok().build();
+    }
+
 }
