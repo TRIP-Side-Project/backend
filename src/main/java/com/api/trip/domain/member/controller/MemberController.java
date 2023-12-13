@@ -1,6 +1,5 @@
 package com.api.trip.domain.member.controller;
 
-import com.api.trip.common.security.util.SecurityUtils;
 import com.api.trip.domain.email.service.EmailService;
 import com.api.trip.domain.member.controller.dto.*;
 import com.api.trip.domain.member.service.MemberService;
@@ -18,13 +17,13 @@ public class MemberController {
     private final EmailService emailService;
 
     @PostMapping("/join")
-    public ResponseEntity<Void> joinMember(@RequestBody JoinRequest joinRequest) {
+    public ResponseEntity<Void> join(@RequestBody JoinRequest joinRequest) {
         memberService.join(joinRequest);
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> loginMember(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         LoginResponse loginResponse = memberService.login(loginRequest);
         return ResponseEntity.ok().body(loginResponse);
     }
@@ -44,16 +43,14 @@ public class MemberController {
     @PreAuthorize("isAnonymous()")
     @PostMapping("/find/password")
     public ResponseEntity<Void> sendNewPassword(@RequestBody FindPasswordRequest findPasswordRequest) {
-        emailService.sendNewPassword(findPasswordRequest.getEmail());
+        emailService.sendNewPassword(findPasswordRequest);
         return ResponseEntity.ok().build();
     }
 
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/me")
     public ResponseEntity<Void> deleteMember(@RequestBody DeleteRequest deleteRequest) {
-        String email = SecurityUtils.getCurrentUsername();
-        memberService.deleteMember(email, deleteRequest.getPassword());
-
+        memberService.deleteMember(deleteRequest);
         return ResponseEntity.ok().build();
     }
 
