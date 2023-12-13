@@ -1,6 +1,7 @@
 package com.api.trip.domain.member.model;
 
 import com.api.trip.common.auditing.entity.BaseTimeEntity;
+import com.api.trip.domain.member.controller.dto.JoinRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -29,6 +30,9 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false) // 기본 이미지가 무조건 들어갈 예정.
+    private String profileImg;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private MemberRole role;
@@ -36,11 +40,21 @@ public class Member extends BaseTimeEntity {
     private boolean emailAuth;
 
     @Builder
-    private Member(String email, String nickname, String password){
+    private Member(String email, String password, String nickname, String profileImg){
         this.email = email;
-        this.nickname = nickname;
         this.password = password;
+        this.nickname = nickname;
+        this.profileImg = profileImg;
         this.role = MemberRole.MEMBER;
+    }
+
+    public static Member of(String email, String password, String nickname, String profileImg) {
+        return Member.builder()
+                .email(email)
+                .password(password)
+                .nickname(nickname)
+                .profileImg(profileImg)
+                .build();
     }
 
     // 이메일 인증 상태 변경 메서드
