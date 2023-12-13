@@ -31,7 +31,13 @@ public class ItemService {
         return itemRepository.save(item).getId();
     }
 
-    public GetItemResponse getItem(Long ItemId) {
+    @Transactional(readOnly = true)
+    public Item getItem(Long itemId){
+        return itemRepository.findById(itemId).orElseThrow();
+    }
+
+    @Transactional(readOnly = true)
+    public GetItemResponse getItemDetail(Long ItemId) {
         Item item = itemRepository.findById(ItemId).orElseThrow();
 
         item.increaseViewCount();
@@ -39,7 +45,7 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public GetItemsResponse getItems(Pageable pageable) {
+    public GetItemsResponse getItemsDetail(Pageable pageable) {
         Page<Item> itemPage = itemRepository.findItems(pageable);
         itemPage.getContent();
 
