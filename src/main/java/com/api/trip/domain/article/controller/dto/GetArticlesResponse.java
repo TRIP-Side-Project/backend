@@ -45,8 +45,9 @@ public class GetArticlesResponse {
         private Long writerId;
         private String writerNickname;
         private String writerRole;
-        private LocalDateTime createdAt;
+        private long viewCount;
         private long likeCount;
+        private LocalDateTime createdAt;
 
         private static ArticleDto of(Article article) {
             Member writer = article.getWriter();
@@ -56,8 +57,9 @@ public class GetArticlesResponse {
                     .writerId(writer.getId())
                     .writerNickname(writer.getNickname())
                     .writerRole(writer.getRole().name())
-                    .createdAt(article.getCreatedAt())
+                    .viewCount(article.getViewCount())
                     .likeCount(article.getLikeCount())
+                    .createdAt(article.getCreatedAt())
                     .build();
         }
     }

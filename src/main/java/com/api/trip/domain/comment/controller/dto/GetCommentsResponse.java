@@ -45,6 +45,7 @@ public class GetCommentsResponse {
         private Long commentId;
         private Long writerId;
         private String writerNickname;
+        private String writerProfileImg;
         private Long articleId;
         private String content;
         private Long parentId;
@@ -58,6 +59,7 @@ public class GetCommentsResponse {
                     .commentId(comment.getId())
                     .writerId(comment.getWriter().getId())
                     .writerNickname(comment.getWriter().getNickname())
+                    .writerProfileImg(comment.getWriter().getProfileImg())
                     .articleId(comment.getArticle().getId())
                     .content(comment.getContent())
                     .parentId(comment.getParent() != null ? comment.getParent().getId() : null)

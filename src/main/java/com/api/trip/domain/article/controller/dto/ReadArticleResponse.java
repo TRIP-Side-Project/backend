@@ -17,8 +17,10 @@ public class ReadArticleResponse {
     private Long writerId;
     private String writerNickname;
     private String writerRole;
+    private String writerProfileImg;
     private String content;
     private long viewCount;
+    private long likeCount;
     private LocalDateTime createdAt;
     private Long interestArticleId;
 
@@ -29,9 +31,11 @@ public class ReadArticleResponse {
                 .title(article.getTitle())
                 .writerId(writer.getId())
                 .writerNickname(writer.getNickname())
+                .writerProfileImg(writer.getProfileImg())
                 .writerRole(writer.getRole().name())
                 .content(article.getContent())
-                .viewCount(article.getViewCount())
+                .viewCount(article.getViewCount() + 1)
+                .likeCount(article.getLikeCount())
                 .createdAt(article.getCreatedAt())
                 .interestArticleId(interestArticle != null ? interestArticle.getId() : null)
                 .build();
