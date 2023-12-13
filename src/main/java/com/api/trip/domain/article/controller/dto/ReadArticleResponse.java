@@ -1,6 +1,7 @@
 package com.api.trip.domain.article.controller.dto;
 
 import com.api.trip.domain.article.model.Article;
+import com.api.trip.domain.interestarticle.model.InterestArticle;
 import com.api.trip.domain.member.model.Member;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,8 +20,9 @@ public class ReadArticleResponse {
     private String content;
     private long viewCount;
     private LocalDateTime createdAt;
+    private Long interestArticleId;
 
-    public static ReadArticleResponse of(Article article) {
+    public static ReadArticleResponse of(Article article, InterestArticle interestArticle) {
         Member writer = article.getWriter();
         return builder()
                 .articleId(article.getId())
@@ -31,6 +33,7 @@ public class ReadArticleResponse {
                 .content(article.getContent())
                 .viewCount(article.getViewCount())
                 .createdAt(article.getCreatedAt())
+                .interestArticleId(interestArticle != null ? interestArticle.getId() : null)
                 .build();
     }
 }
