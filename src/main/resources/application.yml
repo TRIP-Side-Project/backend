@@ -13,6 +13,10 @@ spring:
     web:
       pageable:
         one-indexed-parameters: true
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 50MB
 
 logging:
   level:
