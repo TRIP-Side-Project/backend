@@ -1,10 +1,6 @@
 package com.api.trip.domain.article.service;
 
-import com.api.trip.domain.article.controller.dto.CreateArticleRequest;
-import com.api.trip.domain.article.controller.dto.GetArticlesResponse;
-import com.api.trip.domain.article.controller.dto.GetMyArticlesResponse;
-import com.api.trip.domain.article.controller.dto.ReadArticleResponse;
-import com.api.trip.domain.article.controller.dto.UpdateArticleRequest;
+import com.api.trip.domain.article.controller.dto.*;
 import com.api.trip.domain.article.model.Article;
 import com.api.trip.domain.article.repository.ArticleRepository;
 import com.api.trip.domain.member.model.Member;
