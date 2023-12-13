@@ -38,7 +38,8 @@ public class ArticleController {
 
     @GetMapping("/{articleId}")
     public ResponseEntity<ReadArticleResponse> readArticle(@PathVariable Long articleId) {
-        return ResponseEntity.ok(articleService.readArticle(articleId));
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(articleService.readArticle(articleId, email));
     }
 
     @GetMapping

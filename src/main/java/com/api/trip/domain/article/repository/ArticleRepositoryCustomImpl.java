@@ -12,6 +12,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,12 +28,12 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
     }
 
     @Override
-    public Optional<Article> findArticle(Long id) {
+    public Optional<Article> findArticle(Long articleId) {
         return Optional.ofNullable(
                 jpaQueryFactory
                         .selectFrom(article)
                         .innerJoin(article.writer, member).fetchJoin()
-                        .where(article.id.eq(id))
+                        .where(article.id.eq(articleId))
                         .fetchOne()
         );
     }
@@ -43,7 +44,7 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
                 .selectFrom(article)
                 .innerJoin(article.writer, member).fetchJoin()
                 .where(eqFilter(filter))
-                .orderBy(getOrderSpecifier(pageable))
+                .orderBy(getOrderSpecifiers(pageable))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
@@ -67,12 +68,14 @@ public class ArticleRepositoryCustomImpl implements ArticleRepositoryCustom {
         return null;
     }
 
-    private OrderSpecifier<?> getOrderSpecifier(Pageable pageable) {
+    private OrderSpecifier<?>[] getOrderSpecifiers(Pageable pageable) {
+        List<OrderSpecifier<?>> orderSpecifierList = new ArrayList<>();
         for (Sort.Order order : pageable.getSort()) {
-            if ("POPULAR".equals(order.getProperty())) {
-                return new OrderSpecifier<>(Order.DESC, article.viewCount);
+            if ("popular".equals(order.getProperty())) {
+                orderSpecifierList.add(new OrderSpecifier<>(Order.DESC, article.likeCount));
             }
         }
-        return new OrderSpecifier<>(Order.DESC, article.id);
+        orderSpecifierList.add(new OrderSpecifier<>(Order.DESC, article.id));
+        return orderSpecifierList.toArray(OrderSpecifier[]::new);
     }
 }

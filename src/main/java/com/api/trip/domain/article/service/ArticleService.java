@@ -3,6 +3,8 @@ package com.api.trip.domain.article.service;
 import com.api.trip.domain.article.controller.dto.*;
 import com.api.trip.domain.article.model.Article;
 import com.api.trip.domain.article.repository.ArticleRepository;
+import com.api.trip.domain.interestarticle.model.InterestArticle;
+import com.api.trip.domain.interestarticle.repository.InterestArticleRepository;
 import com.api.trip.domain.member.model.Member;
 import com.api.trip.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -20,6 +23,7 @@ public class ArticleService {
 
     private final ArticleRepository articleRepository;
     private final MemberRepository memberRepository;
+    private final InterestArticleRepository interestArticleRepository;
 
     public Long createArticle(CreateArticleRequest request, String email) {
         Member member = memberRepository.findByEmail(email).orElseThrow();
@@ -51,12 +55,18 @@ public class ArticleService {
         articleRepository.delete(article);
     }
 
-    public ReadArticleResponse readArticle(Long articleId) {
+    public ReadArticleResponse readArticle(Long articleId, String email) {
         Article article = articleRepository.findArticle(articleId).orElseThrow();
 
-        article.increaseViewCount();
+        articleRepository.increaseViewCount(article);
 
-        return ReadArticleResponse.of(article);
+        InterestArticle interestArticle = null;
+        if (!Objects.equals(email, "anonymousUser")) {
+            Member member = memberRepository.findByEmail(email).orElseThrow();
+            interestArticle = interestArticleRepository.findByMemberAndArticle(member, article);
+        }
+
+        return ReadArticleResponse.of(article, interestArticle);
     }
 
     @Transactional(readOnly = true)
