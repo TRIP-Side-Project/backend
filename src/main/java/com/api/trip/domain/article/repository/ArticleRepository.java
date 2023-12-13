@@ -14,6 +14,10 @@ public interface ArticleRepository extends JpaRepository<Article, Long>, Article
     List<Article> findAllByWriterOrderByIdDesc(Member writer);
 
     @Modifying
+    @Query("UPDATE Article a SET a.viewCount = a.viewCount + 1 WHERE a = :article")
+    void increaseViewCount(@Param("article") Article article);
+
+    @Modifying
     @Query("UPDATE Article a SET a.likeCount = a.likeCount + 1 WHERE a = :article")
     void increaseLikeCount(@Param("article") Article article);
 

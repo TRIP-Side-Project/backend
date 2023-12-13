@@ -58,7 +58,7 @@ public class ArticleService {
     public ReadArticleResponse readArticle(Long articleId, String email) {
         Article article = articleRepository.findArticle(articleId).orElseThrow();
 
-        article.increaseViewCount();
+        articleRepository.increaseViewCount(article);
 
         InterestArticle interestArticle = null;
         if (!Objects.equals(email, "anonymousUser")) {
