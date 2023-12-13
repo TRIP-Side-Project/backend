@@ -4,6 +4,7 @@ import com.api.trip.domain.email.model.EmailAuth;
 import com.api.trip.domain.email.repository.EmailAuthRepository;
 import com.api.trip.domain.member.controller.dto.EmailResponse;
 import com.api.trip.domain.member.controller.dto.FindPasswordRequest;
+import com.api.trip.domain.member.model.Member;
 import com.api.trip.domain.member.service.MemberService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -47,13 +48,15 @@ public class EmailService {
     }
 
     @Async
-    public void sendNewPassword(String email) {
+    public void sendNewPassword(FindPasswordRequest findPasswordRequest) {
+        String email = findPasswordRequest.getEmail();
+
         if (email == null || email.isEmpty()) {
             throw new RuntimeException("이메일 정보가 없습니다!");
         }
 
         // 가입 회원 여부 검사
-        memberService.getMemberByEmail(email);
+        Member member = memberService.getMemberByEmail(email);
 
         String newPassword = getRandomPassword();
         String text = "회원님의 임시 비밀번호는 %s 입니다. 로그인 후에 비밀번호를 변경해주세요.".formatted(newPassword);

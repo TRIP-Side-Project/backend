@@ -1,6 +1,6 @@
 package com.api.trip.domain.member.controller.dto;
 
-import com.api.trip.common.security.JwtToken;
+import com.api.trip.common.security.jwt.JwtToken;
 import lombok.Builder;
 import lombok.Getter;
 

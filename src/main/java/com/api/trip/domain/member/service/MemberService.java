@@ -1,9 +1,11 @@
 package com.api.trip.domain.member.service;
 
-import com.api.trip.common.security.JwtToken;
-import com.api.trip.common.security.JwtTokenProvider;
+import com.api.trip.common.security.jwt.JwtToken;
+import com.api.trip.common.security.jwt.JwtTokenProvider;
+import com.api.trip.common.security.util.SecurityUtils;
 import com.api.trip.domain.email.model.EmailAuth;
 import com.api.trip.domain.email.repository.EmailAuthRepository;
+import com.api.trip.domain.member.controller.dto.DeleteRequest;
 import com.api.trip.domain.member.controller.dto.JoinRequest;
 import com.api.trip.domain.member.controller.dto.LoginRequest;
 import com.api.trip.domain.member.controller.dto.LoginResponse;
@@ -18,8 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.security.SecureRandom;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -60,10 +60,10 @@ public class MemberService {
         return LoginResponse.of(jwtToken);
     }
 
-    public void deleteMember(String email, String password) {
-        Member member = getMemberByEmail(email);
+    public void deleteMember(DeleteRequest deleteRequest) {
+        Member member = getAuthenticationMember();
 
-        if (!passwordEncoder.matches(password, member.getPassword())) {
+        if (!passwordEncoder.matches(deleteRequest.getPassword(), member.getPassword())) {
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
 
@@ -79,5 +79,10 @@ public class MemberService {
     @Transactional(readOnly = true)
     public Member getMemberByEmail(String email) {
         return memberRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("가입된 회원이 아닙니다!"));
+    }
+
+    @Transactional(readOnly = true)
+    public Member getAuthenticationMember() {
+        return memberRepository.findByEmail(SecurityUtils.getCurrentUsername()).orElseThrow(() -> new UsernameNotFoundException("가입된 회원이 아닙니다!"));
     }
 }
