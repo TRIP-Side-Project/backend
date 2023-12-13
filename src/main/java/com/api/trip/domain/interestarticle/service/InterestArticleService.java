@@ -32,6 +32,8 @@ public class InterestArticleService {
 
         interestArticle = request.toEntity(member, article);
 
+        articleRepository.increaseLikeCount(interestArticle.getArticle());
+
         return interestArticleRepository.save(interestArticle).getId();
     }
 
@@ -42,6 +44,8 @@ public class InterestArticleService {
         if (interestArticle.getMember() != member) {
             throw new RuntimeException("삭제 권한이 없습니다.");
         }
+
+        articleRepository.decreaseLikeCount(interestArticle.getArticle());
 
         interestArticleRepository.delete(interestArticle);
     }

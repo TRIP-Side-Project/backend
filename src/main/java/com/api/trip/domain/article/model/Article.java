@@ -28,12 +28,15 @@ public class Article extends BaseTimeEntity {
 
     private long viewCount;
 
+    private long likeCount;
+
     @Builder
-    private Article(Member writer, String title, String content, long viewCount) {
+    private Article(Member writer, String title, String content, long viewCount, long likeCount) {
         this.writer = writer;
         this.title = title;
         this.content = content;
         this.viewCount = viewCount;
+        this.likeCount = likeCount;
     }
 
     public void modify(String title, String content) {
