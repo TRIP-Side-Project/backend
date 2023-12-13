@@ -1,4 +1,4 @@
-package com.api.trip.common.security;
+package com.api.trip.common.security.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

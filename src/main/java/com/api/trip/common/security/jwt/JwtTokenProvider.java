@@ -1,4 +1,4 @@
-package com.api.trip.common.security;
+package com.api.trip.common.security.jwt;
 
 
 import io.jsonwebtoken.Claims;

@@ -1,7 +1,7 @@
 package com.api.trip.domain.member.service;
 
-import com.api.trip.common.security.JwtToken;
-import com.api.trip.common.security.JwtTokenProvider;
+import com.api.trip.common.security.jwt.JwtToken;
+import com.api.trip.common.security.jwt.JwtTokenProvider;
 import com.api.trip.common.security.util.SecurityUtils;
 import com.api.trip.domain.email.model.EmailAuth;
 import com.api.trip.domain.email.repository.EmailAuthRepository;
