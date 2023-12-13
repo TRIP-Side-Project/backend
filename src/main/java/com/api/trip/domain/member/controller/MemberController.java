@@ -1,12 +1,24 @@
 package com.api.trip.domain.member.controller;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.api.trip.domain.email.service.EmailService;
 import com.api.trip.domain.member.controller.dto.*;
 import com.api.trip.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/members")
@@ -16,9 +28,10 @@ public class MemberController {
     private final MemberService memberService;
     private final EmailService emailService;
 
-    @PostMapping("/join")
-    public ResponseEntity<Void> join(@RequestBody JoinRequest joinRequest) {
-        memberService.join(joinRequest);
+    @PostMapping(value = "/join", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<Void> join(@RequestPart JoinRequest joinRequest, @RequestPart(required = false) MultipartFile profileImg) throws IOException {
+
+        memberService.join(joinRequest, profileImg);
         return ResponseEntity.ok().build();
     }
 
