@@ -24,15 +24,14 @@ public class ItemController {
     }
     @GetMapping("/{ItemId}")
     public ResponseEntity<GetItemResponse> getItem(@PathVariable Long ItemId) {
-        return ResponseEntity.ok(itemService.getItem(ItemId));
+        return ResponseEntity.ok(itemService.getItemDetail(ItemId));
     }
 
     @GetMapping
     public ResponseEntity<GetItemsResponse> getItems(
-            @PageableDefault(size = 8) Pageable pageable,
-            @RequestParam(value = "filter", required = false) String filter
+            @PageableDefault(size = 8) Pageable pageable
     ) {
-        return ResponseEntity.ok(itemService.getItems(pageable));
+        return ResponseEntity.ok(itemService.getItemsDetail(pageable));
     }
 
 
