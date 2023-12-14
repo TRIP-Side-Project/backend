@@ -2,6 +2,9 @@ package com.api.trip.common.security.config;
 
 import com.api.trip.common.security.jwt.JwtTokenFilter;
 import com.api.trip.common.security.jwt.JwtTokenProvider;
+import com.api.trip.common.security.oauth.CustomOAuth2UserService;
+import com.api.trip.common.security.oauth.OAuthFailureHandler;
+import com.api.trip.common.security.oauth.OAuthSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +26,9 @@ import org.springframework.security.web.header.writers.frameoptions.XFrameOption
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final CustomOAuth2UserService customOAuth2UserService;
+    private final OAuthSuccessHandler OAuthSuccessHandler;
+    private final OAuthFailureHandler OAuthFailureHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
@@ -35,7 +41,13 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .headers((headers) -> headers
                         .addHeaderWriter(new XFrameOptionsHeaderWriter(
-                                XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN)))
+                                XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN))
+                )
+                .oauth2Login(oauth -> oauth
+                        .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint.userService(customOAuth2UserService))
+                        .successHandler(OAuthSuccessHandler)
+                        .failureHandler(OAuthFailureHandler)
+                )
                 .addFilterBefore(new JwtTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
