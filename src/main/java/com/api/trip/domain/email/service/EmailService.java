@@ -31,8 +31,7 @@ public class EmailService {
 
     @Async
     public void send(String email, String authToken) {
-        // TODO: 개발용, 서버용 링크 분리 예정
-        String text = "http://localhost:8080/api/members/auth-email/%s/%s" .formatted(email, authToken);
+        String text = "https://triptrip.site/api/members/auth-email/%s/%s" .formatted(email, authToken);
 
         MimeMessage message = javaMailSender.createMimeMessage();
 
