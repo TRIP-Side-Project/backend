@@ -13,26 +13,14 @@ import java.util.List;
 @Builder
 public class GetArticlesResponse {
 
-    private int totalPages;
-    private long totalElements;
-    private int page;
-    private boolean hasNext;
-    private boolean hasPrevious;
-    private int requestSize;
-    private int resultSize;
-    private List<ArticleDto> result;
+    private List<ArticleDto> articles;
+    private Pagination pagination;
 
     public static GetArticlesResponse of(Page<Article> articlePage) {
         Page<ArticleDto> articleDtoPage = articlePage.map(ArticleDto::of);
         return builder()
-                .totalPages(articleDtoPage.getTotalPages())
-                .totalElements(articleDtoPage.getTotalElements())
-                .page(articleDtoPage.getNumber() + 1)
-                .hasNext(articleDtoPage.hasNext())
-                .hasPrevious(articleDtoPage.hasPrevious())
-                .requestSize(articleDtoPage.getSize())
-                .resultSize(articleDtoPage.getNumberOfElements())
-                .result(articleDtoPage.getContent())
+                .articles(articleDtoPage.getContent())
+                .pagination(Pagination.of(articleDtoPage))
                 .build();
     }
 
@@ -60,6 +48,31 @@ public class GetArticlesResponse {
                     .viewCount(article.getViewCount())
                     .likeCount(article.getLikeCount())
                     .createdAt(article.getCreatedAt())
+                    .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    private static class Pagination {
+
+        private int totalPages;
+        private long totalElements;
+        private int page;
+        private boolean hasNext;
+        private boolean hasPrevious;
+        private int requestSize;
+        private int articleSize;
+
+        private static Pagination of(Page<ArticleDto> articleDtoPage) {
+            return builder()
+                    .totalPages(articleDtoPage.getTotalPages())
+                    .totalElements(articleDtoPage.getTotalElements())
+                    .page(articleDtoPage.getNumber() + 1)
+                    .hasNext(articleDtoPage.hasNext())
+                    .hasPrevious(articleDtoPage.hasPrevious())
+                    .requestSize(articleDtoPage.getSize())
+                    .articleSize(articleDtoPage.getNumberOfElements())
                     .build();
         }
     }
