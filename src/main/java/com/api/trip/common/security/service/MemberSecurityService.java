@@ -1,4 +1,4 @@
-package com.api.trip.common.security;
+package com.api.trip.common.security.service;
 
 import com.api.trip.common.security.dto.AuthenticationMember;
 import com.api.trip.domain.member.model.Member;

@@ -1,16 +1,21 @@
 package com.api.trip.domain.member.model;
 
+import com.api.trip.common.auditing.entity.BaseTimeEntity;
 import com.api.trip.domain.member.controller.dto.JoinRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Member {
+@SQLDelete(sql = "UPDATE member SET deleted_at = NOW() WHERE id = ?")
+@SQLRestriction("deleted_at IS NULL")
+public class Member extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,23 +30,39 @@ public class Member {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false) // 기본 이미지가 무조건 들어갈 예정.
+    private String profileImg;
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private MemberRole role;
 
+    private boolean emailAuth;
+
     @Builder
-    private Member(String email, String nickname, String password){
+    private Member(String email, String password, String nickname, String profileImg){
         this.email = email;
-        this.nickname = nickname;
         this.password = password;
+        this.nickname = nickname;
+        this.profileImg = profileImg;
         this.role = MemberRole.MEMBER;
     }
 
-    public static Member of(JoinRequest joinRequest, String password){
+    public static Member of(String email, String password, String nickname, String profileImg) {
         return Member.builder()
-                .email(joinRequest.getEmail())
-                .nickname(joinRequest.getNickname())
+                .email(email)
                 .password(password)
+                .nickname(nickname)
+                .profileImg(profileImg)
                 .build();
+    }
+
+    // 이메일 인증 상태 변경 메서드
+    public void emailVerifiedSuccess() {
+        this.emailAuth = true;
+    }
+
+    public void changePassword(String password) {
+        this.password = password;
     }
 }

@@ -1,10 +1,10 @@
-package com.api.trip.common.security;
+package com.api.trip.common.security.jwt;
 
 
-import com.api.trip.common.security.dto.AuthenticationMember;
-import com.api.trip.domain.member.model.Member;
-import com.api.trip.domain.member.repository.MemberRepository;
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;

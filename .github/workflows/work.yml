@@ -71,4 +71,4 @@ jobs:
             docker rm trip_app || true
             docker pull ${{ secrets.DOCKER_REPO }}/trip
             docker run --name=trip_app --restart unless-stopped \
-            -p 80:8080 -e TZ=Asia/Seoul -d ${{ secrets.DOCKER_REPO }}/trip
+            -p 8080:8080 -e TZ=Asia/Seoul -d ${{ secrets.DOCKER_REPO }}/trip
