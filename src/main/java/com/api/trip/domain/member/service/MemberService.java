@@ -7,10 +7,7 @@ import com.api.trip.domain.aws.util.MultipartFileUtils;
 import com.api.trip.domain.aws.service.AmazonS3Service;
 import com.api.trip.domain.email.model.EmailAuth;
 import com.api.trip.domain.email.repository.EmailAuthRepository;
-import com.api.trip.domain.member.controller.dto.DeleteRequest;
-import com.api.trip.domain.member.controller.dto.JoinRequest;
-import com.api.trip.domain.member.controller.dto.LoginRequest;
-import com.api.trip.domain.member.controller.dto.LoginResponse;
+import com.api.trip.domain.member.controller.dto.*;
 import com.api.trip.domain.member.model.Member;
 import com.api.trip.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -71,8 +68,6 @@ public class MemberService {
         );
 
         member.emailVerifiedSuccess();
-
-        // TODO: 회원 가입이 실패하는 경우 s3에 있는 파일 삭제 처리 고민 해보기
         memberRepository.save(member);
     }
 
@@ -103,6 +98,21 @@ public class MemberService {
         Member member = memberRepository.findByEmail(email).orElseThrow();
         member.changePassword(passwordEncoder.encode(password));
     }
+
+    public void updatePassword(UpdatePasswordRequest updatePasswordRequest) {
+        Member member = getAuthenticationMember();
+
+        if (!passwordEncoder.matches(updatePasswordRequest.getCurrentPassword(), member.getPassword())) {
+            throw new RuntimeException("비밀번호가 일치하지 않습니다!");
+        }
+
+        if (!updatePasswordRequest.getNewPassword().equals(updatePasswordRequest.getNewPasswordConfirm())) {
+            throw new RuntimeException("새 비밀번호를 다시 입력해주세요!");
+        }
+
+        member.changePassword(passwordEncoder.encode(updatePasswordRequest.getNewPassword()));
+    }
+
 
     @Transactional(readOnly = true)
     public Member getMemberByEmail(String email) {
