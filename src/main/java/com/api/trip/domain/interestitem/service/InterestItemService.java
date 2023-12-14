@@ -7,6 +7,7 @@ import com.api.trip.domain.interestitem.repository.InterestItemRepository;
 import com.api.trip.domain.item.controller.dto.CreateItemRequest;
 import com.api.trip.domain.item.controller.dto.GetItemsResponse;
 import com.api.trip.domain.item.model.Item;
+import com.api.trip.domain.item.repository.ItemRepository;
 import com.api.trip.domain.item.service.ItemService;
 import com.api.trip.domain.member.model.Member;
 import com.api.trip.domain.member.service.MemberService;
@@ -25,7 +26,9 @@ public class InterestItemService {
 
     private final MemberService memberService;
     private final ItemService itemService;
+    private final ItemRepository itemRepository;
     private final InterestItemRepository interestItemRepository;
+
 
     public void createInterestItem(CreateInterestItemRequest itemRequest) {
         Member member = memberService.getAuthenticationMember();
@@ -36,9 +39,11 @@ public class InterestItemService {
                 .member(member).build();
 
         interestItemRepository.save(interestItem);
+        itemRepository.increaseLikeCount(item);
 
     }
 
+    @Transactional(readOnly = true)
     public GetItemsResponse getInterestItems(Pageable pageable) {
         Member member = memberService.getAuthenticationMember();
         Page<InterestItem> page = interestItemRepository.findByMember(member, pageable);
@@ -49,5 +54,6 @@ public class InterestItemService {
     public void cancelInterestItem(Long itemId) {
         InterestItem interestItem = interestItemRepository.findByItem_Id(itemId);
         interestItemRepository.delete(interestItem);
+        itemRepository.decreaseLikeCount(interestItem.getItem());
     }
 }

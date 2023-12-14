@@ -14,8 +14,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -40,13 +38,14 @@ public class ItemService {
     public GetItemResponse getItemDetail(Long ItemId) {
         Item item = itemRepository.findById(ItemId).orElseThrow();
 
-        item.increaseViewCount();
+        itemRepository.increaseViewCount(item);
+
         return GetItemResponse.of(item);
     }
 
     @Transactional(readOnly = true)
-    public GetItemsResponse getItemsDetail(Pageable pageable) {
-        Page<Item> itemPage = itemRepository.findItems(pageable);
+    public GetItemsResponse getItemsDetail(Pageable pageable, int sortCode, String search) {
+        Page<Item> itemPage = itemRepository.findItems(pageable, sortCode, search);
         itemPage.getContent();
 
         return GetItemsResponse.of(itemPage);
@@ -60,6 +59,7 @@ public class ItemService {
         if (item.getWriter() != member) {
             throw new RuntimeException("삭제 권한이 없습니다.");
         }
+
         item.delete();
     }
 
