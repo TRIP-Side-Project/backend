@@ -43,11 +43,11 @@ public class SecurityConfig {
                         .addHeaderWriter(new XFrameOptionsHeaderWriter(
                                 XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN))
                 )
-                .oauth2Login(oauth -> oauth
-                        .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint.userService(customOAuth2UserService))
-                        .successHandler(OAuthSuccessHandler)
-                        .failureHandler(OAuthFailureHandler)
-                )
+//                .oauth2Login(oauth -> oauth
+//                        .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint.userService(customOAuth2UserService))
+//                        .successHandler(OAuthSuccessHandler)
+//                        .failureHandler(OAuthFailureHandler)
+//                )
                 .addFilterBefore(new JwtTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }

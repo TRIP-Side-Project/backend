@@ -1,13 +1,9 @@
 package com.api.trip.domain.member.controller;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.api.trip.domain.email.service.EmailService;
 import com.api.trip.domain.member.controller.dto.*;
 import com.api.trip.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -15,10 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Optional;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/members")
@@ -59,6 +51,14 @@ public class MemberController {
         emailService.sendNewPassword(findPasswordRequest);
         return ResponseEntity.ok().build();
     }
+
+    @PreAuthorize("isAuthenticated()")
+    @PatchMapping("/password")
+    public ResponseEntity<Void> updatePassword(@RequestBody UpdatePasswordRequest updatePasswordRequest) {
+        memberService.updatePassword(updatePasswordRequest);
+        return ResponseEntity.ok().build();
+    }
+
 
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/me")
