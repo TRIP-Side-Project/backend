@@ -38,6 +38,9 @@ public class Item  extends BaseTimeEntity {
     @Column(nullable = false)
     private long viewCount;
 
+    @Column(nullable = false)
+    private long likeCount;
+
     @Column
     private boolean isDeleted;
 
@@ -54,12 +57,10 @@ public class Item  extends BaseTimeEntity {
         this.maxPrice = maxPrice;
         this.minPrice = minPrice;
         this.viewCount = 0;
+        this.likeCount = 0;
         this.writer = writer;
     }
 
-    public void increaseViewCount() {
-        this.viewCount++;
-    }
     public void delete(){
         if(this.isDeleted == true)
             new RuntimeException("이미 삭제된 아이템입니다.");

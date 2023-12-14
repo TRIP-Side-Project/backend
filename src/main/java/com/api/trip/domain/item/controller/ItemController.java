@@ -29,9 +29,12 @@ public class ItemController {
 
     @GetMapping
     public ResponseEntity<GetItemsResponse> getItems(
-            @PageableDefault(size = 8) Pageable pageable
+            @PageableDefault(size = 8) Pageable pageable,
+            @RequestParam int sortCode,
+            @RequestParam String search
     ) {
-        return ResponseEntity.ok(itemService.getItemsDetail(pageable));
+
+        return ResponseEntity.ok(itemService.getItemsDetail(pageable, sortCode, search));
     }
 
 
