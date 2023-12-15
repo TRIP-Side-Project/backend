@@ -43,7 +43,7 @@ public class MemberService {
         });
 
         // 이메일 인증이 완료 여부 검사
-        EmailAuth emailAuth = emailAuthRepository.findByEmail(joinRequest.getEmail())
+        EmailAuth emailAuth = emailAuthRepository.findTop1ByEmailAndExpiredIsTrueOrderByCreatedAtDesc(joinRequest.getEmail())
                 .orElseThrow(() -> new RuntimeException("이메일 인증 토큰 정보가 없습니다!"));
 
         String profileImgUrl = "";
