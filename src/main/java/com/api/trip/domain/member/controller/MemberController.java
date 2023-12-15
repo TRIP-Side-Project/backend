@@ -21,10 +21,10 @@ public class MemberController {
     private final MemberService memberService;
     private final EmailService emailService;
 
-    @PostMapping(value = "/join", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<Void> join(@RequestPart JoinRequest joinRequest, @RequestPart(required = false) MultipartFile profileImg) throws IOException {
+    @PostMapping(value = "/join")
+    public ResponseEntity<Void> join(@ModelAttribute JoinRequest joinRequest) throws IOException {
 
-        memberService.join(joinRequest, profileImg);
+        memberService.join(joinRequest);
         return ResponseEntity.ok().build();
     }
 
