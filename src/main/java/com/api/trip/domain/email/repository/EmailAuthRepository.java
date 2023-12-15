@@ -7,6 +7,6 @@ import java.util.Optional;
 
 public interface EmailAuthRepository extends JpaRepository<EmailAuth, Long>, EmailAuthRepositoryCustom {
 
-    Optional<EmailAuth> findByEmail(String email);
+    Optional<EmailAuth> findTop1ByEmailAndExpiredIsTrueOrderByCreatedAtDesc(String email);
 
 }
