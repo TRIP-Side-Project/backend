@@ -4,6 +4,7 @@ import com.api.trip.domain.email.service.EmailService;
 import com.api.trip.domain.member.controller.dto.*;
 import com.api.trip.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,9 +41,16 @@ public class MemberController {
         emailService.send(email, emailService.createEmailAuth(email));
     }
 
+    // 이메일 인증
     @GetMapping("/auth-email/{email}/{authToken}")
     public ResponseEntity<EmailResponse> emailAndAuthToken(@PathVariable String email, @PathVariable String authToken) {
-        return ResponseEntity.ok().body(emailService.authEmail(email, authToken));
+        EmailResponse emailResponse = emailService.authEmail(email, authToken);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("message", emailResponse.getMessage());
+        headers.add("auth-email", String.valueOf(emailResponse.isAuthEmail()));
+
+        return ResponseEntity.ok().headers(headers).body(emailResponse);
     }
 
     @PreAuthorize("isAnonymous()")
