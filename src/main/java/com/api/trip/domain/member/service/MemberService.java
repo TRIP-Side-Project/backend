@@ -35,7 +35,7 @@ public class MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
 
-    public void join(JoinRequest joinRequest, MultipartFile profileImg) throws IOException {
+    public void join(JoinRequest joinRequest) throws IOException {
 
         // 중복된 회원이 있는지 검사
         memberRepository.findByEmail(joinRequest.getEmail()).ifPresent(it -> {
@@ -45,6 +45,8 @@ public class MemberService {
         // 이메일 인증이 완료 여부 검사
         EmailAuth emailAuth = emailAuthRepository.findTop1ByEmailAndExpiredIsTrueOrderByCreatedAtDesc(joinRequest.getEmail())
                 .orElseThrow(() -> new RuntimeException("이메일 인증 토큰 정보가 없습니다!"));
+
+        MultipartFile profileImg = joinRequest.getProfileImg();
 
         String profileImgUrl = "";
         if (profileImg == null || profileImg.isEmpty()) {
