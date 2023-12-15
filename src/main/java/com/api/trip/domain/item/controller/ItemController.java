@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/items")
 @RequiredArgsConstructor
@@ -31,10 +33,18 @@ public class ItemController {
     public ResponseEntity<GetItemsResponse> getItems(
             @PageableDefault(size = 8) Pageable pageable,
             @RequestParam int sortCode,
-            @RequestParam String search
+            @RequestParam String search,
+            @RequestParam List<String> tagNames
     ) {
+        GetItemsResponse itemsDetail;
 
-        return ResponseEntity.ok(itemService.getItemsDetail(pageable, sortCode, search));
+        if(tagNames.size() == 0) {
+            itemsDetail = itemService.getItemsDetail(pageable, sortCode, search);
+        }
+        else
+            itemsDetail = itemService.getItemsDetailByTag(pageable, sortCode, tagNames);
+
+        return ResponseEntity.ok(itemsDetail);
     }
 
 
