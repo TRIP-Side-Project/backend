@@ -9,6 +9,7 @@ import com.api.trip.domain.member.service.MemberService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -31,14 +32,15 @@ public class EmailService {
 
     @Async
     public void send(String email, String authToken) {
-        String text = "https://triptrip.site/api/members/auth-email/%s/%s" .formatted(email, authToken);
+
+        String authLink = "https://triptrip.site/api/members/auth-email/%s/%s".formatted(email, authToken);
 
         MimeMessage message = javaMailSender.createMimeMessage();
 
         try {
             message.setSubject("[TRIP TRIP] 회원가입 인증 링크 발급");
             message.setRecipients(MimeMessage.RecipientType.TO, email);
-            message.setText(text, "UTF-8", "HTML");
+            message.setText(authLink, "UTF-8", "HTML");
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
