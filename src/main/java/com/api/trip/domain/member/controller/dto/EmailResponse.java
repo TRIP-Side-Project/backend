@@ -12,7 +12,7 @@ public class EmailResponse {
 
     public static EmailResponse of(boolean authEmail) {
         return EmailResponse.builder()
-                .message("이메일 인증이 완료 되었습니다!")
+                .message("success email auth!")
                 .authEmail(authEmail)
                 .build();
     }
