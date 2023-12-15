@@ -5,6 +5,7 @@ import com.api.trip.domain.email.repository.EmailAuthRepository;
 import com.api.trip.domain.member.controller.dto.EmailResponse;
 import com.api.trip.domain.member.controller.dto.FindPasswordRequest;
 import com.api.trip.domain.member.model.Member;
+import com.api.trip.domain.member.repository.MemberRepository;
 import com.api.trip.domain.member.service.MemberService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -29,9 +30,14 @@ public class EmailService {
     private final MemberService memberService;
     private final JavaMailSender javaMailSender;
     private final EmailAuthRepository emailAuthRepository;
+    private final MemberRepository memberRepository;
 
     @Async
     public void send(String email, String authToken) {
+
+        if (memberRepository.findByEmail(email).isPresent()) {
+            throw new RuntimeException("이메일 인증이 완료된 회원입니다!");
+        }
 
         String authLink = "https://triptrip.site/api/members/auth-email/%s/%s".formatted(email, authToken);
 
