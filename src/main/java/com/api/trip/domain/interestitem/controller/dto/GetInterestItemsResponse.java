@@ -1,9 +1,8 @@
 package com.api.trip.domain.interestitem.controller.dto;
 
-import com.api.trip.domain.interestitem.InterestItem;
+import com.api.trip.domain.interestitem.model.InterestItem;
 import com.api.trip.domain.item.controller.dto.GetItemResponse;
 import com.api.trip.domain.item.controller.dto.GetItemsResponse;
-import com.api.trip.domain.item.model.Item;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.domain.Page;

@@ -5,6 +5,8 @@ import com.api.trip.domain.member.model.Member;
 import jakarta.persistence.Column;
 import lombok.Getter;
 
+import java.util.List;
+
 @Getter
 public class CreateItemRequest {
 
@@ -20,6 +22,8 @@ public class CreateItemRequest {
     private long maxPrice;
 
     private long minPrice;
+
+    private List<String> tagNames;
 
     public Item toEntity(Member writer){
         return Item.builder()
