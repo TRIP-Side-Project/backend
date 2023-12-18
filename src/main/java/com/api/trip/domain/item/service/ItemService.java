@@ -6,6 +6,7 @@ import com.api.trip.domain.item.controller.dto.GetItemResponse;
 import com.api.trip.domain.item.controller.dto.GetItemsResponse;
 import com.api.trip.domain.item.model.Item;
 import com.api.trip.domain.item.repository.ItemRepository;
+import com.api.trip.domain.itemtag.service.ItemTagService;
 import com.api.trip.domain.member.model.Member;
 import com.api.trip.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -21,10 +24,12 @@ public class ItemService {
 
     private final MemberService memberService;
     private final ItemRepository itemRepository;
+    private final ItemTagService itemTagService;
 
     public Long createItem(CreateItemRequest itemRequest) {
         Member member = memberService.getAuthenticationMember();
         Item item = itemRequest.toEntity(member);
+        itemTagService.createItemTag(item, itemRequest.getTagNames());
 
         return itemRepository.save(item).getId();
     }
@@ -46,11 +51,16 @@ public class ItemService {
     @Transactional(readOnly = true)
     public GetItemsResponse getItemsDetail(Pageable pageable, int sortCode, String search) {
         Page<Item> itemPage = itemRepository.findItems(pageable, sortCode, search);
-        itemPage.getContent();
 
         return GetItemsResponse.of(itemPage);
     }
 
+    @Transactional(readOnly = true)
+    public GetItemsResponse getItemsDetailByTag(Pageable pageable, int sortCode, List<String> tagNames) {
+        Page<Item> itemsByTag = itemTagService.getItemsByTag(pageable, sortCode, tagNames);
+
+        return GetItemsResponse.of(itemsByTag);
+    }
 
     public void deleteItem(Long ItemId) {
         Member member = memberService.getAuthenticationMember();

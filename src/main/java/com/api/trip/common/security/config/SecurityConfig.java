@@ -3,7 +3,6 @@ package com.api.trip.common.security.config;
 import com.api.trip.common.security.jwt.JwtTokenFilter;
 import com.api.trip.common.security.jwt.JwtTokenProvider;
 import com.api.trip.common.security.oauth.CustomOAuth2UserService;
-import com.api.trip.common.security.oauth.OAuthFailureHandler;
 import com.api.trip.common.security.oauth.OAuthSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -18,17 +17,15 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.frameoptions.XFrameOptionsHeaderWriter;
 
-
-@RequiredArgsConstructor
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(securedEnabled = true)
+@RequiredArgsConstructor
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuthSuccessHandler OAuthSuccessHandler;
-    private final OAuthFailureHandler OAuthFailureHandler;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
@@ -43,11 +40,12 @@ public class SecurityConfig {
                         .addHeaderWriter(new XFrameOptionsHeaderWriter(
                                 XFrameOptionsHeaderWriter.XFrameOptionsMode.SAMEORIGIN))
                 )
-//                .oauth2Login(oauth -> oauth
-//                        .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint.userService(customOAuth2UserService))
-//                        .successHandler(OAuthSuccessHandler)
-//                        .failureHandler(OAuthFailureHandler)
-//                )
+                .oauth2Login(oauth -> oauth
+                        .userInfoEndpoint(userInfoEndpoint -> userInfoEndpoint
+                                .userService(customOAuth2UserService)
+                        )
+                        .successHandler(OAuthSuccessHandler)
+                )
                 .addFilterBefore(new JwtTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
@@ -56,4 +54,5 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
+
 }

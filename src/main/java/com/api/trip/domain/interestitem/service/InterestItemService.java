@@ -1,10 +1,9 @@
 package com.api.trip.domain.interestitem.service;
 
-import com.api.trip.domain.interestitem.InterestItem;
+import com.api.trip.domain.interestitem.model.InterestItem;
 import com.api.trip.domain.interestitem.controller.dto.CreateInterestItemRequest;
 import com.api.trip.domain.interestitem.controller.dto.GetInterestItemsResponse;
 import com.api.trip.domain.interestitem.repository.InterestItemRepository;
-import com.api.trip.domain.item.controller.dto.CreateItemRequest;
 import com.api.trip.domain.item.controller.dto.GetItemsResponse;
 import com.api.trip.domain.item.model.Item;
 import com.api.trip.domain.item.repository.ItemRepository;
@@ -16,8 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.stream.Collectors;
 
 @Service
 @Transactional
