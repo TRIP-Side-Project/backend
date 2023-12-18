@@ -66,7 +66,7 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         response.addHeader(HttpHeaders.SET_COOKIE, createCookie("accessToken", jwtToken.getAccessToken()));
         response.addHeader(HttpHeaders.SET_COOKIE, createCookie("refreshToken", jwtToken.getRefreshToken()));
         response.addHeader(HttpHeaders.SET_COOKIE, createCookie("memberId", String.valueOf(memberId)));
-        response.sendRedirect("/home");
+        response.sendRedirect("http://localhost:5173/home");
     }
 
     private static String createCookie(String name, String value) {
