@@ -15,53 +15,54 @@ import java.util.Map;
 public class OAuth2Attribute {
 
     private Map<String, Object> attributes; // 소셜 로그인 사용자의 속성 정보를 담는 Map
-    private String userNameAttributeName; // 사용자 속성의 키 값
+    private String attributeKey; // 사용자 속성의 키 값
     private String email; // 이메일
-    private String nickname; // 이름
-    private String profileImg; // 프로필 사진
-    private String oauthType; // 제공자 정보
+    private String name; // 이름
+    private String picture; // 프로필 사진
 
-    static OAuth2Attribute of(String oauthType, String userNameAttributeName, Map<String, Object> attributes) {
-        return switch (oauthType) {
-            case "kakao" -> kakao(oauthType, userNameAttributeName, attributes);
-            case "google" -> google(oauthType, userNameAttributeName, attributes);
-            case "naver" -> naver(oauthType, userNameAttributeName, attributes);
+    static OAuth2Attribute of(String provider, String attributeKey, Map<String, Object> attributes) {
+        // 각 플랫폼 별로 제공해주는 데이터가 조금씩 다르기 때문에 분기 처리함.
+        return switch (provider) {
+            case "google" -> google(attributeKey, attributes);
+            case "kakao" -> kakao(attributeKey, attributes);
+            case "naver" -> naver(attributeKey, attributes);
             default -> throw new RuntimeException();
         };
     }
 
+    private static OAuth2Attribute google(String attributeKey, Map<String, Object> attributes) {
+        log.debug("google: {}", attributes);
+        return OAuth2Attribute.builder()
+                .email((String) attributes.get("email"))
+                .name((String) attributes.get("name"))
+                .picture((String)attributes.get("picture"))
+                .attributes(attributes)
+                .attributeKey(attributeKey)
+                .build();
+    }
 
-    private static OAuth2Attribute kakao(String oauthType, String userNameAttributeName, Map<String, Object> attributes) {
+    private static OAuth2Attribute kakao(String attributeKey, Map<String, Object> attributes) {
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
         Map<String, Object> kakaoProfile = (Map<String, Object>) kakaoAccount.get("profile");
 
         return OAuth2Attribute.builder()
-                .userNameAttributeName(userNameAttributeName)
+                .email("KAKAO_" + (String) kakaoAccount.get("email"))
+                .name((String) kakaoProfile.get("nickname"))
+                .picture((String) kakaoProfile.get("profile_image_url"))
                 .attributes(kakaoAccount)
-                .email((String) kakaoAccount.get("email"))
-                .nickname((String) kakaoProfile.get("nickname"))
-                .profileImg((String) kakaoProfile.get("profile_image_url"))
-                .oauthType(oauthType)
+                .attributeKey(attributeKey)
                 .build();
     }
 
-    private static OAuth2Attribute google(String oauthType, String userNameAttributeName, Map<String, Object> attributes) {
-        return OAuth2Attribute.builder()
-                .userNameAttributeName(userNameAttributeName)
-                .attributes(attributes)
-                .email((String) attributes.get("email"))
-                .oauthType(oauthType)
-                .build();
-    }
-
-    private static OAuth2Attribute naver(String oauthType, String userNameAttributeName, Map<String, Object> attributes) {
+    private static OAuth2Attribute naver(String attributeKey, Map<String, Object> attributes) {
         Map<String, Object> response = (Map<String, Object>) attributes.get("response");
 
         return OAuth2Attribute.builder()
                 .email((String) response.get("email"))
+                .name((String) response.get("nickname"))
+                .picture((String) response.get("profile_image"))
                 .attributes(response)
-                .oauthType(oauthType)
-                .userNameAttributeName(userNameAttributeName)
+                .attributeKey(attributeKey)
                 .build();
     }
 
@@ -69,12 +70,11 @@ public class OAuth2Attribute {
     // OAuth2Attribute -> Map<String, Object>
     public Map<String, Object> convertToMap() {
         Map<String, Object> map = new HashMap<>();
-
-        map.put("id", userNameAttributeName);
+        map.put("id", attributeKey);
+        map.put("key", attributeKey);
         map.put("email", email);
-        map.put("nickname", nickname);
-        map.put("profileImg", profileImg);
-        map.put("oauthType", oauthType);
+        map.put("name", name);
+        map.put("picture", picture);
 
         return map;
     }
