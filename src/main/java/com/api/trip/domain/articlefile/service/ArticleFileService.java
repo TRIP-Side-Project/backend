@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -31,5 +33,11 @@ public class ArticleFileService {
                 .build();
 
         return articleFileRepository.save(articleFile).getUrl();
+    }
+
+    public void deleteTemporaryArticleFilesBefore(LocalDateTime localDateTime) {
+        List<ArticleFile> articleFiles = articleFileRepository.findAllByArticleNullAndCreatedAtBefore(localDateTime);
+        articleFileRepository.deleteAllInBatch(articleFiles);
+        articleFiles.forEach(articleFile -> articleFileUploader.delete(articleFile.getUrl()));
     }
 }

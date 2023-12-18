@@ -36,4 +36,9 @@ public class ArticleFileUploader {
 
         return amazonS3.getUrl(bucket + FOLDER_NAME, fileName).toString();
     }
+
+    public void delete(String url) {
+        String fileName = url.split(FOLDER_NAME + "/")[1];
+        amazonS3.deleteObject(bucket + FOLDER_NAME, fileName);
+    }
 }

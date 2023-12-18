@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ArticleFileRepository extends JpaRepository<ArticleFile, Long> {
@@ -22,4 +23,6 @@ public interface ArticleFileRepository extends JpaRepository<ArticleFile, Long> 
     @Modifying
     @Query("UPDATE ArticleFile af SET af.article = null WHERE af.article = :article")
     void setArticleNullWhereArticle(@Param("article") Article article);
+
+    List<ArticleFile> findAllByArticleNullAndCreatedAtBefore(LocalDateTime localDateTime);
 }
