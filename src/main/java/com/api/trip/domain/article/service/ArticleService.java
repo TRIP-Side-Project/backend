@@ -3,6 +3,8 @@ package com.api.trip.domain.article.service;
 import com.api.trip.domain.article.controller.dto.*;
 import com.api.trip.domain.article.model.Article;
 import com.api.trip.domain.article.repository.ArticleRepository;
+import com.api.trip.domain.article.util.UrlExtractor;
+import com.api.trip.domain.articlefile.repository.ArticleFileRepository;
 import com.api.trip.domain.interestarticle.model.InterestArticle;
 import com.api.trip.domain.interestarticle.repository.InterestArticleRepository;
 import com.api.trip.domain.member.model.Member;
@@ -24,13 +26,19 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final MemberRepository memberRepository;
     private final InterestArticleRepository interestArticleRepository;
+    private final ArticleFileRepository articleFileRepository;
 
     public Long createArticle(CreateArticleRequest request, String email) {
         Member member = memberRepository.findByEmail(email).orElseThrow();
 
         Article article = request.toEntity(member);
 
-        return articleRepository.save(article).getId();
+        article = articleRepository.save(article);
+
+        List<String> urls = UrlExtractor.extractAll(request.getContent());
+        articleFileRepository.setArticleWhereArticleNullAndUrlIn(article, urls);
+
+        return article.getId();
     }
 
     public void updateArticle(Long articleId, UpdateArticleRequest request, String email) {
@@ -40,6 +48,10 @@ public class ArticleService {
         if (article.getWriter() != member) {
             throw new RuntimeException("수정 권한이 없습니다.");
         }
+
+        List<String> urls = UrlExtractor.extractAll(request.getContent());
+        articleFileRepository.setArticleNullWhereArticleAndUrlNotIn(article, urls);
+        articleFileRepository.setArticleWhereArticleNullAndUrlIn(article, urls);
 
         article.modify(request.getTitle(), request.getContent());
     }
@@ -51,6 +63,8 @@ public class ArticleService {
         if (article.getWriter() != member) {
             throw new RuntimeException("삭제 권한이 없습니다.");
         }
+
+        articleFileRepository.setArticleNullWhereArticle(article);
 
         articleRepository.delete(article);
     }
