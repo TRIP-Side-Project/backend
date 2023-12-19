@@ -23,6 +23,8 @@ public class CreateItemRequest {
 
     private long minPrice;
 
+    private String imageUrl;
+
     private List<String> tagNames;
 
     public Item toEntity(Member writer){
@@ -33,6 +35,7 @@ public class CreateItemRequest {
                 .buyUrl(buyUrl)
                 .maxPrice(maxPrice)
                 .minPrice(minPrice)
+                .imageUrl(imageUrl)
                 .writer(writer)
                 .build();
 

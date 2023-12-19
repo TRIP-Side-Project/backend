@@ -36,8 +36,8 @@ public class ItemTagService {
         }
     }
 
-    public Page<Item> getItemsByTag(Pageable pageable, int sortCode, List<String> tagNames) {
-        List<Tag> tags = tagService.getTags(tagNames);
-        return itemTagRepository.findItemsByTags(pageable, sortCode, tags);
+    public Page<Item> getItemsByTag(Pageable pageable, int sortCode, String tagName) {
+        Tag tag = tagService.getTag(tagName);
+        return itemTagRepository.findItemsByTag(pageable, sortCode, tag);
     }
 }

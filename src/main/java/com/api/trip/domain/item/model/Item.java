@@ -41,6 +41,9 @@ public class Item  extends BaseTimeEntity {
     @Column(nullable = false)
     private long likeCount;
 
+    @Column(nullable = false)
+    private String imageUrl;
+
     @Column
     private boolean isDeleted;
 
@@ -49,13 +52,14 @@ public class Item  extends BaseTimeEntity {
 
 
     @Builder
-    private Item(Long productId, String title, String shopName, String buyUrl, long maxPrice, long minPrice, Member writer) {
+    private Item(Long productId, String title, String shopName, String buyUrl, long maxPrice, long minPrice, String imageUrl, Member writer) {
         this.productId = productId;
         this.title = title;
         this.shopName = shopName;
         this.buyUrl = buyUrl;
         this.maxPrice = maxPrice;
         this.minPrice = minPrice;
+        this.imageUrl = imageUrl;
         this.viewCount = 0;
         this.likeCount = 0;
         this.writer = writer;

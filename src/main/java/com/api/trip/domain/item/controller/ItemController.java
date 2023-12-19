@@ -33,16 +33,16 @@ public class ItemController {
     public ResponseEntity<GetItemsResponse> getItems(
             @PageableDefault(size = 8) Pageable pageable,
             @RequestParam int sortCode,
-            @RequestParam String search,
-            @RequestParam List<String> tagNames
+            @RequestParam String title,
+            @RequestParam String tagName
     ) {
         GetItemsResponse itemsDetail;
 
-        if(tagNames.size() == 0) {
-            itemsDetail = itemService.getItemsDetail(pageable, sortCode, search);
+        if(tagName == null) {
+            itemsDetail = itemService.getItemsDetail(pageable, sortCode, title);
         }
         else
-            itemsDetail = itemService.getItemsDetailByTag(pageable, sortCode, tagNames);
+            itemsDetail = itemService.getItemsDetailByTag(pageable, sortCode, tagName);
 
         return ResponseEntity.ok(itemsDetail);
     }

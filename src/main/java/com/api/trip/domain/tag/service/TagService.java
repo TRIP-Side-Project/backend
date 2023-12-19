@@ -22,6 +22,10 @@ public class TagService {
     public List<Tag> getTags(List<String> tagNames){
         return tagRepository.findByNameIn(tagNames);
     }
+
+    public Tag getTag(String tagName){
+        return tagRepository.findByName(tagName);
+    }
     /*
      @Todo
      필요 시 삭제 기능 구현
