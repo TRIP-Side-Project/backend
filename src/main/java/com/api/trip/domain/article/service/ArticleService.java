@@ -5,10 +5,13 @@ import com.api.trip.domain.article.model.Article;
 import com.api.trip.domain.article.repository.ArticleRepository;
 import com.api.trip.domain.article.util.UrlExtractor;
 import com.api.trip.domain.articlefile.repository.ArticleFileRepository;
+import com.api.trip.domain.articletag.model.ArticleTag;
+import com.api.trip.domain.articletag.repository.ArticleTagRepository;
 import com.api.trip.domain.interestarticle.model.InterestArticle;
 import com.api.trip.domain.interestarticle.repository.InterestArticleRepository;
 import com.api.trip.domain.member.model.Member;
 import com.api.trip.domain.member.repository.MemberRepository;
+import com.api.trip.domain.tag.repository.TagRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,18 +28,31 @@ public class ArticleService {
 
     private final ArticleRepository articleRepository;
     private final MemberRepository memberRepository;
+    private final ArticleTagRepository articleTagRepository;
+    private final TagRepository tagRepository;
     private final InterestArticleRepository interestArticleRepository;
     private final ArticleFileRepository articleFileRepository;
 
     public Long createArticle(CreateArticleRequest request, String email) {
         Member member = memberRepository.findByEmail(email).orElseThrow();
 
-        Article article = request.toEntity(member);
+        final Article article = request.toEntity(member);
 
-        article = articleRepository.save(article);
+        articleRepository.save(article);
+
+        tagRepository.findByNameIn(request.getTags())
+                .forEach(tag -> {
+                    ArticleTag articleTag = ArticleTag.builder()
+                            .article(article)
+                            .tag(tag)
+                            .build();
+                    articleTagRepository.save(articleTag);
+                });
 
         List<String> urls = UrlExtractor.extractAll(request.getContent());
-        articleFileRepository.setArticleWhereArticleNullAndUrlIn(article, urls);
+        if (urls.size() > 0) {
+            articleFileRepository.setArticleWhereArticleNullAndUrlIn(article, urls);
+        }
 
         return article.getId();
     }
@@ -49,9 +65,21 @@ public class ArticleService {
             throw new RuntimeException("수정 권한이 없습니다.");
         }
 
+        articleTagRepository.deleteAllByArticle(article);
+        tagRepository.findByNameIn(request.getTags())
+                .forEach(tag -> {
+                    ArticleTag articleTag = ArticleTag.builder()
+                            .article(article)
+                            .tag(tag)
+                            .build();
+                    articleTagRepository.save(articleTag);
+                });
+
         List<String> urls = UrlExtractor.extractAll(request.getContent());
-        articleFileRepository.setArticleNullWhereArticleAndUrlNotIn(article, urls);
-        articleFileRepository.setArticleWhereArticleNullAndUrlIn(article, urls);
+        if (urls.size() > 0) {
+            articleFileRepository.setArticleNullWhereArticleAndUrlNotIn(article, urls);
+            articleFileRepository.setArticleWhereArticleNullAndUrlIn(article, urls);
+        }
 
         article.modify(request.getTitle(), request.getContent());
     }
@@ -64,6 +92,8 @@ public class ArticleService {
             throw new RuntimeException("삭제 권한이 없습니다.");
         }
 
+        articleTagRepository.deleteAllByArticle(article);
+
         articleFileRepository.setArticleNullWhereArticle(article);
 
         articleRepository.delete(article);
@@ -72,7 +102,7 @@ public class ArticleService {
     public ReadArticleResponse readArticle(Long articleId, String email) {
         Article article = articleRepository.findArticle(articleId).orElseThrow();
 
-        articleRepository.increaseViewCount(article);
+        List<ArticleTag> articleTags = articleTagRepository.findArticleTags(article);
 
         InterestArticle interestArticle = null;
         if (!Objects.equals(email, "anonymousUser")) {
@@ -80,7 +110,9 @@ public class ArticleService {
             interestArticle = interestArticleRepository.findByMemberAndArticle(member, article);
         }
 
-        return ReadArticleResponse.of(article, interestArticle);
+        articleRepository.increaseViewCount(article);
+
+        return ReadArticleResponse.of(article, articleTags, interestArticle);
     }
 
     @Transactional(readOnly = true)
