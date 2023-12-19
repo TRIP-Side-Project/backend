@@ -1,5 +1,6 @@
 package com.api.trip.common.security.jwt;
 
+import com.api.trip.common.security.util.JwtTokenUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,19 +22,20 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String header = request.getHeader("accessToken");
 
-        if (header == null || !header.startsWith("Bearer ")) {
-            log.error("Error occurs while getting header. header is null or invalid {}", request.getRequestURL());
-            filterChain.doFilter(request, response);
-            return;
-        }
 
-        String accessToken = header.split(" ")[1].trim();
+        String accessToken = JwtTokenUtils.extractBearerToken(request.getHeader("accessToken"));
 
-        if (jwtTokenProvider.validateAccessToken(accessToken)) {
+
+
+        if (!request.getRequestURI().equals("/api/members/rotate") && accessToken != null) { // 토큰 재발급의 요청이 아니면서 accessToken이 존재할 때
+
+            // 토큰이 유효한 경우 and 로그인 상태
             Authentication authentication = jwtTokenProvider.getAuthenticationByAccessToken(accessToken);
+            jwtTokenProvider.checkLogin(authentication.getName());
+
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
         }
 
         filterChain.doFilter(request, response);
