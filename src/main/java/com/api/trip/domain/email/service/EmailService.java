@@ -42,19 +42,18 @@ public class EmailService {
             throw new RuntimeException("이메일 인증이 완료된 회원입니다!");
         }
 
-        String authUrl = "https://triptrip.site/api/members/auth-email/%s/%s".formatted(email, authToken);
-
         MimeMessage message = javaMailSender.createMimeMessage();
 
         try {
             Context context = new Context();
-            context.setVariable("auth_url", authUrl);
+            context.setVariable("auth_url", "https://triptrip.site/api/members/auth-email/%s/%s".formatted(email, authToken));
 
             String html = templateEngine.process("email_auth_mail", context);
 
-            message.setSubject("[TRIP TRIP] 회원가입 인증 링크 발급");
+            message.setSubject("[TRIP TRIP] 이메일 인증 안내입니다.");
             message.setRecipients(MimeMessage.RecipientType.TO, email);
             message.setText(html, "UTF-8", "HTML");
+
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
@@ -72,15 +71,20 @@ public class EmailService {
 
         // 가입 회원 여부 검사
         Member member = memberService.getMemberByEmail(email);
-
         String newPassword = getRandomPassword();
-        String text = "회원님의 임시 비밀번호는 %s 입니다. 로그인 후에 비밀번호를 변경해주세요.".formatted(newPassword);
 
         MimeMessage message = javaMailSender.createMimeMessage();
         try {
-            message.setSubject("[TRIP TRIP] 임시 비밀번호 발급");
+
+            Context context = new Context();
+            context.setVariable("newPassword", newPassword);
+
+            String html = templateEngine.process("find_password_mail", context);
+
+            message.setSubject("[TRIP TRIP] 임시 비밀번호 안내입니다.");
             message.setRecipients(MimeMessage.RecipientType.TO, email);
-            message.setText(text);
+            message.setText(html, "UTF-8", "HTML");
+
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
