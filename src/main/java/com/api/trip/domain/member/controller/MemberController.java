@@ -1,13 +1,20 @@
 package com.api.trip.domain.member.controller;
 
+import com.api.trip.common.exception.ErrorCode;
+import com.api.trip.common.exception.custom_exception.BadRequestException;
+import com.api.trip.common.security.jwt.JwtToken;
+import com.api.trip.common.security.util.JwtTokenUtils;
 import com.api.trip.domain.email.service.EmailService;
 import com.api.trip.domain.member.controller.dto.*;
 import com.api.trip.domain.member.service.MemberService;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -75,4 +82,22 @@ public class MemberController {
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "로그아웃")
+    @PostMapping("/logout")
+    public ResponseEntity<String> logoutMember() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok().body(memberService.logout(username));
+    }
+
+    @GetMapping("/rotate")
+    public JwtToken rotateToken(HttpServletRequest request){
+        String refreshToken = JwtTokenUtils.extractBearerToken(request.getHeader("refreshToken"));
+
+        if(refreshToken.isBlank())
+            throw new BadRequestException(ErrorCode.EMPTY_REFRESH_TOKEN);
+
+
+        return memberService.rotateToken(refreshToken);
+    }
 }

@@ -1,7 +1,9 @@
 package com.api.trip.domain.member.service;
 
+import com.api.trip.common.exception.custom_exception.InvalidException;
 import com.api.trip.common.security.jwt.JwtToken;
 import com.api.trip.common.security.jwt.JwtTokenProvider;
+import com.api.trip.common.security.util.JwtTokenUtils;
 import com.api.trip.common.security.util.SecurityUtils;
 import com.api.trip.domain.aws.util.MultipartFileUtils;
 import com.api.trip.domain.aws.service.AmazonS3Service;
@@ -21,7 +23,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InvalidClassException;
 import java.util.stream.Collectors;
+
+import static com.api.trip.common.exception.ErrorCode.SNATCH_TOKEN;
 
 @Service
 @Transactional
@@ -34,6 +39,7 @@ public class MemberService {
     private final AmazonS3Service amazonS3Service;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final JwtTokenUtils jwtTokenUtils;
 
     public void join(JoinRequest joinRequest) throws IOException {
 
@@ -124,5 +130,44 @@ public class MemberService {
     @Transactional(readOnly = true)
     public Member getAuthenticationMember() {
         return memberRepository.findByEmail(SecurityUtils.getCurrentUsername()).orElseThrow(() -> new UsernameNotFoundException("가입된 회원이 아닙니다!"));
+    }
+
+    /**
+     * @Description
+     *  1. 요청으로 들어온 RT검증 + 로그인 여부 체킹
+     *  2. 현재 RT와 요청으로 들어온 RT비교
+     *  3. 다르다면 토큰 탈취로 간주 후 로그아웃 처리 + 예외 처리
+     */
+    public JwtToken rotateToken(String requestRefreshToken) {
+        Authentication authentication = validateAndGetAuthentication(requestRefreshToken);
+        String userEmail = authentication.getName();
+
+        checkLogin(userEmail);
+
+        String currentRefreshToken = jwtTokenUtils.getRefreshToken(userEmail);
+
+        if(isSnatch(requestRefreshToken, currentRefreshToken) == true) {
+            logout(authentication.getName());
+            throw new InvalidException(SNATCH_TOKEN);
+        }
+
+        return jwtTokenProvider.refreshJwtToken(authentication);
+    }
+
+    private boolean isSnatch(String requestRefreshToken, String currentRefreshToken) {
+        return !currentRefreshToken.equals(requestRefreshToken);
+    }
+
+    private void checkLogin(String email) {
+        jwtTokenProvider.checkLogin(email);
+    }
+
+    private Authentication validateAndGetAuthentication(String requestRefreshToken){
+        return  jwtTokenProvider.getAuthenticationByRefreshToken(requestRefreshToken);
+    }
+
+    public String logout(String email){
+        jwtTokenUtils.deleteRefreshToken(email);
+        return "로그아웃 처리 되었습니다.";
     }
 }
