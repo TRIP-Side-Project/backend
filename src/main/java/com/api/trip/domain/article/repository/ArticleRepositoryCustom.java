@@ -10,5 +10,7 @@ public interface ArticleRepositoryCustom {
 
     Optional<Article> findArticle(Long articleId);
 
-    Page<Article> findArticles(Pageable pageable, String filter);
+    Page<Article> findArticles(Pageable pageable, int sortCode, String category, String title);
+
+    Page<Article> findArticlesByTagName(Pageable pageable, int sortCode, String category, String tagName);
 }
