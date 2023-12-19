@@ -45,9 +45,12 @@ public class ArticleController {
     @GetMapping
     public ResponseEntity<GetArticlesResponse> getArticles(
             @PageableDefault(size = 8) Pageable pageable,
-            @RequestParam(value = "filter", required = false) String filter
+            @RequestParam(value = "sortCode", defaultValue = "0") int sortCode,
+            @RequestParam(value = "category", required = false) String category,
+            @RequestParam(value = "title", required = false) String title,
+            @RequestParam(value = "tag", required = false) String tagName
     ) {
-        return ResponseEntity.ok(articleService.getArticles(pageable, filter));
+        return ResponseEntity.ok(articleService.getArticles(pageable, sortCode, category, title, tagName));
     }
 
     @GetMapping("/me")

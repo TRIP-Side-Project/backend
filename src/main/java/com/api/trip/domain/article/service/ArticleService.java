@@ -116,8 +116,16 @@ public class ArticleService {
     }
 
     @Transactional(readOnly = true)
-    public GetArticlesResponse getArticles(Pageable pageable, String filter) {
-        Page<Article> articlePage = articleRepository.findArticles(pageable, filter);
+    public GetArticlesResponse getArticles(Pageable pageable, int sortCode, String category, String title, String tagName) {
+        Page<Article> articlePage = null;
+
+        if (tagName == null) {
+            articlePage = articleRepository.findArticles(pageable, sortCode, category, title);
+        }
+
+        if (tagName != null) {
+            articlePage = articleRepository.findArticlesByTagName(pageable, sortCode, category, tagName);
+        }
 
         return GetArticlesResponse.of(articlePage);
     }
