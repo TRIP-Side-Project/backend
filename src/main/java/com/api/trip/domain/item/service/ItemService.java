@@ -56,8 +56,8 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
-    public GetItemsResponse getItemsDetailByTag(Pageable pageable, int sortCode, List<String> tagNames) {
-        Page<Item> itemsByTag = itemTagService.getItemsByTag(pageable, sortCode, tagNames);
+    public GetItemsResponse getItemsDetailByTag(Pageable pageable, int sortCode, String tagName) {
+        Page<Item> itemsByTag = itemTagService.getItemsByTag(pageable, sortCode, tagName);
 
         return GetItemsResponse.of(itemsByTag);
     }
