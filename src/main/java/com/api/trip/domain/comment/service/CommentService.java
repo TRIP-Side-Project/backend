@@ -1,5 +1,7 @@
 package com.api.trip.domain.comment.service;
 
+import com.api.trip.common.exception.CustomException;
+import com.api.trip.common.exception.ErrorCode;
 import com.api.trip.domain.article.model.Article;
 import com.api.trip.domain.article.repository.ArticleRepository;
 import com.api.trip.domain.comment.controller.dto.CreateCommentRequest;
@@ -21,45 +23,61 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CommentService {
 
+    private final MemberRepository memberRepository;
     private final CommentRepository commentRepository;
     private final ArticleRepository articleRepository;
-    private final MemberRepository memberRepository;
 
     public Long createComment(CreateCommentRequest request, String email) {
-        Member member = memberRepository.findByEmail(email).orElseThrow();
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
 
-        Article article = articleRepository.findById(request.getArticleId()).orElseThrow();
+        Article article = articleRepository.findById(request.getArticleId())
+                .orElseThrow(() -> new CustomException(ErrorCode.ARTICLE_NOT_FOUND));
 
         Comment parent = null;
         if (request.getParentId() != null) {
-            parent = commentRepository.findById(request.getParentId()).orElseThrow();
+            parent = commentRepository.findById(request.getParentId())
+                    .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
             if (parent.getParent() != null || parent.getArticle() != article) {
-                throw new RuntimeException("잘못된 요청입니다.");
+                throw new CustomException(ErrorCode.BAD_REQUEST);
             }
         }
 
-        Comment comment = request.toEntity(member, article, parent);
-
-        return commentRepository.save(comment).getId();
+        return commentRepository.save(
+                        Comment.builder()
+                                .writer(member)
+                                .article(article)
+                                .content(request.getContent())
+                                .parent(parent)
+                                .build()
+                )
+                .getId();
     }
 
     public void updateComment(Long commentId, UpdateCommentRequest request, String email) {
-        Member member = memberRepository.findByEmail(email).orElseThrow();
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
 
-        Comment comment = commentRepository.findById(commentId).orElseThrow();
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
         if (comment.getWriter() != member) {
-            throw new RuntimeException("수정 권한이 없습니다.");
+            throw new CustomException(ErrorCode.FORBIDDEN);
         }
 
         comment.modify(request.getContent());
     }
 
     public void deleteComment(Long commentId, String email) {
-        Member member = memberRepository.findByEmail(email).orElseThrow();
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
 
-        Comment comment = commentRepository.findById(commentId).orElseThrow();
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CustomException(ErrorCode.COMMENT_NOT_FOUND));
+
         if (comment.getWriter() != member) {
-            throw new RuntimeException("삭제 권한이 없습니다.");
+            throw new CustomException(ErrorCode.FORBIDDEN);
         }
 
         commentRepository.delete(comment);
@@ -67,7 +85,8 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public GetCommentsResponse getComments(Long articleId) {
-        Article article = articleRepository.findById(articleId).orElseThrow();
+        Article article = articleRepository.findById(articleId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ARTICLE_NOT_FOUND));
 
         List<Comment> comments = commentRepository.findComments(article);
 
@@ -76,7 +95,8 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public GetMyCommentsResponse getMyComments(String email) {
-        Member member = memberRepository.findByEmail(email).orElseThrow();
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
 
         List<Comment> comments = commentRepository.findAllByWriterOrderByIdDesc(member);
 

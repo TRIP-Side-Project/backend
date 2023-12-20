@@ -35,8 +35,17 @@ public enum ErrorCode {
     NOT_FOUND_EMAIL_TOKEN("이메일 인증 토큰이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
 
     ALREADY_JOINED("이미 존재하는 회원입니다.", HttpStatus.CONFLICT),
-    ;
 
+    // 게시판 관련
+    BAD_REQUEST("잘못된 요청입니다.", HttpStatus.BAD_REQUEST),
+    UNAUTHORIZED("로그인해 주세요.", HttpStatus.UNAUTHORIZED),
+    FORBIDDEN("접근 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    ARTICLE_NOT_FOUND("존재하지 않는 게시글입니다.", HttpStatus.NOT_FOUND),
+    COMMENT_NOT_FOUND("존재하지 않는 댓글입니다.", HttpStatus.NOT_FOUND),
+    INTEREST_ARTICLE_ALREADY_EXISTS("이미 좋아한 게시글입니다.", HttpStatus.BAD_REQUEST),
+    INTEREST_ARTICLE_NOT_FOUND("좋아한 게시글이 아닙니다.", HttpStatus.NOT_FOUND),
+    UPLOAD_FAILED("파일 업로드에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+    ;
 
     private final String message;
     private final HttpStatus status;
@@ -45,6 +54,4 @@ public enum ErrorCode {
         this.message = message;
         this.status = status;
     }
-
-
 }
