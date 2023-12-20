@@ -4,6 +4,7 @@ import com.api.trip.common.exception.ErrorCode;
 import com.api.trip.common.exception.custom_exception.DuplicateException;
 import com.api.trip.common.exception.custom_exception.InvalidException;
 import com.api.trip.common.exception.custom_exception.NotFoundException;
+import com.api.trip.common.exception.custom_exception.NotMatchException;
 import com.api.trip.common.security.jwt.JwtToken;
 import com.api.trip.common.security.jwt.JwtTokenProvider;
 import com.api.trip.common.security.util.JwtTokenUtils;
@@ -44,6 +45,7 @@ public class MemberService {
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtTokenUtils jwtTokenUtils;
 
+    // 회원가입
     public void join(JoinRequest joinRequest) throws IOException {
 
         // 중복된 회원이 있는지 검사
@@ -82,6 +84,7 @@ public class MemberService {
         memberRepository.save(member);
     }
 
+    // 로그인
     public LoginResponse login(LoginRequest loginRequest) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword());
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
@@ -94,34 +97,36 @@ public class MemberService {
         return LoginResponse.of(jwtToken);
     }
 
+    // 비밀번호 변경
+    public void updatePassword(UpdatePasswordRequest updatePasswordRequest) {
+        Member member = getAuthenticationMember();
+
+        if (!passwordEncoder.matches(updatePasswordRequest.getCurrentPassword(), member.getPassword())) {
+            throw new NotMatchException(ErrorCode.INVALID_CURRENT_PASSWORD);
+        }
+
+        if (!updatePasswordRequest.getNewPassword().equals(updatePasswordRequest.getNewPasswordConfirm())) {
+            throw new NotMatchException(ErrorCode.INVALID_NEW_PASSWORD);
+        }
+
+        member.changePassword(passwordEncoder.encode(updatePasswordRequest.getNewPassword()));
+    }
+
+    // 회원 탈퇴
     public void deleteMember(DeleteRequest deleteRequest) {
         Member member = getAuthenticationMember();
 
         if (!passwordEncoder.matches(deleteRequest.getPassword(), member.getPassword())) {
-            throw new RuntimeException("비밀번호가 일치하지 않습니다.");
+            throw new NotMatchException(ErrorCode.INVALID_CURRENT_PASSWORD);
         }
 
         memberRepository.deleteById(member.getId());
     }
 
-    // 회원의 비밀번호를 메일로 전송한 임시 비밀번호로 변경
+    // 회원의 비밀번호를 임시 비밀번호로 업데이트
     public void changePassword(String email, String password) {
-        Member member = memberRepository.findByEmail(email).orElseThrow();
+        Member member = memberRepository.findByEmail(email).orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_MEMBER));
         member.changePassword(passwordEncoder.encode(password));
-    }
-
-    public void updatePassword(UpdatePasswordRequest updatePasswordRequest) {
-        Member member = getAuthenticationMember();
-
-        if (!passwordEncoder.matches(updatePasswordRequest.getCurrentPassword(), member.getPassword())) {
-            throw new RuntimeException("비밀번호가 일치하지 않습니다!");
-        }
-
-        if (!updatePasswordRequest.getNewPassword().equals(updatePasswordRequest.getNewPasswordConfirm())) {
-            throw new RuntimeException("새 비밀번호를 다시 입력해주세요!");
-        }
-
-        member.changePassword(passwordEncoder.encode(updatePasswordRequest.getNewPassword()));
     }
 
 
