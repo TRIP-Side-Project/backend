@@ -1,5 +1,8 @@
 package com.api.trip.domain.email.service;
 
+import com.api.trip.common.exception.ErrorCode;
+import com.api.trip.common.exception.custom_exception.BadRequestException;
+import com.api.trip.common.exception.custom_exception.NotFoundException;
 import com.api.trip.domain.email.model.EmailAuth;
 import com.api.trip.domain.email.repository.EmailAuthRepository;
 import com.api.trip.domain.member.controller.dto.EmailResponse;
@@ -66,7 +69,7 @@ public class EmailService {
         String email = findPasswordRequest.getEmail();
 
         if (email == null || email.isEmpty()) {
-            throw new RuntimeException("이메일 정보가 없습니다!");
+            throw new BadRequestException(ErrorCode.EMPTY_EMAIL);
         }
 
         // 가입 회원 여부 검사
@@ -96,7 +99,7 @@ public class EmailService {
     // 인증 메일 검증
     public EmailResponse authEmail(String email, String authToken) {
         EmailAuth emailAuth = emailAuthRepository.findValidAuthByEmail(email, authToken, LocalDateTime.now())
-                .orElseThrow(() -> new RuntimeException("토큰 정보가 일치하지 않습니다!"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_EMAIL_TOKEN));
 
         emailAuth.useToken(); // 토큰 사용 -> 만료
         return EmailResponse.of(emailAuth.isExpired());
