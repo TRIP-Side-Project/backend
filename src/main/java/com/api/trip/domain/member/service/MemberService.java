@@ -1,6 +1,9 @@
 package com.api.trip.domain.member.service;
 
+import com.api.trip.common.exception.ErrorCode;
+import com.api.trip.common.exception.custom_exception.DuplicateException;
 import com.api.trip.common.exception.custom_exception.InvalidException;
+import com.api.trip.common.exception.custom_exception.NotFoundException;
 import com.api.trip.common.security.jwt.JwtToken;
 import com.api.trip.common.security.jwt.JwtTokenProvider;
 import com.api.trip.common.security.util.JwtTokenUtils;
@@ -45,12 +48,12 @@ public class MemberService {
 
         // 중복된 회원이 있는지 검사
         memberRepository.findByEmail(joinRequest.getEmail()).ifPresent(it -> {
-            throw new RuntimeException("이미 존재하는 회원 입니다.");
+            throw new DuplicateException(ErrorCode.ALREADY_JOINED);
         });
 
         // 이메일 인증이 완료 여부 검사
         EmailAuth emailAuth = emailAuthRepository.findTop1ByEmailAndExpiredIsTrueOrderByCreatedAtDesc(joinRequest.getEmail())
-                .orElseThrow(() -> new RuntimeException("이메일 인증 토큰 정보가 없습니다!"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_EMAIL_TOKEN));
 
         MultipartFile profileImg = joinRequest.getProfileImg();
 
@@ -61,7 +64,7 @@ public class MemberService {
         } else {
             // 파일 변조 여부 체크
             if (!MultipartFileUtils.isPermission(profileImg.getInputStream())) {
-                throw new RuntimeException("프로필 사진은 이미지 파일만 선택 가능합니다!");
+                throw new InvalidException(ErrorCode.INVALID_IMAGE_TYPE);
             }
 
             // 요청 파일 이미지가 있는 경우 s3 업로드
@@ -124,12 +127,12 @@ public class MemberService {
 
     @Transactional(readOnly = true)
     public Member getMemberByEmail(String email) {
-        return memberRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("가입된 회원이 아닙니다!"));
+        return memberRepository.findByEmail(email).orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_MEMBER));
     }
 
     @Transactional(readOnly = true)
     public Member getAuthenticationMember() {
-        return memberRepository.findByEmail(SecurityUtils.getCurrentUsername()).orElseThrow(() -> new UsernameNotFoundException("가입된 회원이 아닙니다!"));
+        return memberRepository.findByEmail(SecurityUtils.getCurrentUsername()).orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_MEMBER));
     }
 
     /**
