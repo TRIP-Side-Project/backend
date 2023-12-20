@@ -1,6 +1,9 @@
 package com.api.trip.domain.item.service;
 
 
+import com.api.trip.common.exception.ErrorCode;
+import com.api.trip.common.exception.custom_exception.ForbiddenException;
+import com.api.trip.common.exception.custom_exception.NotFoundException;
 import com.api.trip.domain.item.controller.dto.CreateItemRequest;
 import com.api.trip.domain.item.controller.dto.GetItemResponse;
 import com.api.trip.domain.item.controller.dto.GetItemsResponse;
@@ -8,6 +11,7 @@ import com.api.trip.domain.item.model.Item;
 import com.api.trip.domain.item.repository.ItemRepository;
 import com.api.trip.domain.itemtag.service.ItemTagService;
 import com.api.trip.domain.member.model.Member;
+import com.api.trip.domain.member.model.MemberRole;
 import com.api.trip.domain.member.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,22 +30,34 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final ItemTagService itemTagService;
 
-    public Long createItem(CreateItemRequest itemRequest) {
+    public Long createItemByDirect(CreateItemRequest itemRequest) {
         Member member = memberService.getAuthenticationMember();
-        Item item = itemRequest.toEntity(member);
+
+        if(!member.getRole().equals(MemberRole.ADMIN))
+            throw new ForbiddenException(ErrorCode.FORBIDDEN_CREATE);
+
+        Item item = itemRequest.toEntity();
+        item.setWriter(member);
+        itemTagService.createItemTag(item, itemRequest.getTagNames());
+
+        return itemRepository.save(item).getId();
+    }
+    public Long createItem(CreateItemRequest itemRequest){
+        Item item = itemRequest.toEntity();
         itemTagService.createItemTag(item, itemRequest.getTagNames());
 
         return itemRepository.save(item).getId();
     }
 
+
     @Transactional(readOnly = true)
     public Item getItem(Long itemId){
-        return itemRepository.findById(itemId).orElseThrow();
+        return itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_ITEM));
     }
 
     @Transactional(readOnly = true)
-    public GetItemResponse getItemDetail(Long ItemId) {
-        Item item = itemRepository.findById(ItemId).orElseThrow();
+    public GetItemResponse getItemDetail(Long itemId) {
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_ITEM));
 
         itemRepository.increaseViewCount(item);
 
@@ -62,13 +78,15 @@ public class ItemService {
         return GetItemsResponse.of(itemsByTag);
     }
 
-    public void deleteItem(Long ItemId) {
+    public void deleteItem(Long itemId) {
         Member member = memberService.getAuthenticationMember();
 
-        Item item = itemRepository.findById(ItemId).orElseThrow();
-        if (item.getWriter() != member) {
-            throw new RuntimeException("삭제 권한이 없습니다.");
+        if (!member.getRole().equals("ADMIN")) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN_DELETE);
         }
+
+        Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_ITEM));
+
 
         item.delete();
     }

@@ -3,6 +3,7 @@ import com.api.trip.domain.item.controller.dto.CreateItemRequest;
 import com.api.trip.domain.item.controller.dto.GetItemResponse;
 import com.api.trip.domain.item.controller.dto.GetItemsResponse;
 import com.api.trip.domain.item.service.ItemService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -19,11 +20,13 @@ public class ItemController {
 
     private final ItemService itemService;
 
-    @PostMapping
-    public ResponseEntity<Long> createItem(@RequestBody CreateItemRequest itemRequest) {
 
-        return ResponseEntity.ok(itemService.createItem(itemRequest));
+    @PostMapping
+    public ResponseEntity<Long> createItem(@RequestBody @Valid CreateItemRequest itemRequest) {
+
+        return ResponseEntity.ok(itemService.createItemByDirect(itemRequest));
     }
+
     @GetMapping("/{ItemId}")
     public ResponseEntity<GetItemResponse> getItem(@PathVariable Long ItemId) {
         return ResponseEntity.ok(itemService.getItemDetail(ItemId));

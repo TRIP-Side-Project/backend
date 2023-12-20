@@ -17,7 +17,7 @@ public class Item  extends BaseTimeEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private Long productId;
 
     @Column(nullable = false)
@@ -62,6 +62,10 @@ public class Item  extends BaseTimeEntity {
         this.imageUrl = imageUrl;
         this.viewCount = 0;
         this.likeCount = 0;
+        this.writer = writer;
+    }
+
+    public void setWriter(Member writer){
         this.writer = writer;
     }
 
