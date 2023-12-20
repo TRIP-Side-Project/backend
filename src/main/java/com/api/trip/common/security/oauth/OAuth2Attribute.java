@@ -1,5 +1,7 @@
 package com.api.trip.common.security.oauth;
 
+import com.api.trip.common.exception.ErrorCode;
+import com.api.trip.common.exception.custom_exception.NotFoundException;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,7 +28,7 @@ public class OAuth2Attribute {
             case "google" -> google(attributeKey, attributes);
             case "kakao" -> kakao(attributeKey, attributes);
             case "naver" -> naver(attributeKey, attributes);
-            default -> throw new RuntimeException();
+            default -> throw new NotFoundException(ErrorCode.NOT_FOUND_PROVIDER);
         };
     }
 

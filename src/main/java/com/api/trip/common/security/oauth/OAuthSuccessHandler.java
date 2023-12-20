@@ -74,7 +74,6 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
                 .path("/")
                 .httpOnly(true)
                 .sameSite("None")
-                .secure(true)
                 .build()
                 .toString();
     }
