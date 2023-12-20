@@ -23,8 +23,14 @@ public enum ErrorCode {
     INVALID_CURRENT_PASSWORD("현재 비밀번호가 일치하지 않습니다!", HttpStatus.UNAUTHORIZED),
     INVALID_NEW_PASSWORD("새 비밀번호가 일치하지 않습니다!", HttpStatus.UNAUTHORIZED),
 
+    // 403
+    FORBIDDEN_CREATE("생성 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    FORBIDDEN_DELETE("삭제 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    FORBIDDEN_UPDATE("수정 권한이 없습니다.", HttpStatus.FORBIDDEN),
+
     // 404
     NOT_FOUND_MEMBER("회원이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
+    NOT_FOUND_ITEM("상품이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     NOT_FOUND_PROVIDER("지원하지 않는 소셜 로그인 플랫폼 입니다.", HttpStatus.NOT_FOUND),
     NOT_FOUND_EMAIL_TOKEN("이메일 인증 토큰이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
 
