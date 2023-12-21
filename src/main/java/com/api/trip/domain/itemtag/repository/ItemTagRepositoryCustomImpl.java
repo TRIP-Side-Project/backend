@@ -28,10 +28,10 @@ public class ItemTagRepositoryCustomImpl implements ItemTagRepositoryCustom{
     }
 
     @Override
-    public Page<Item> findItemsByTags(Pageable pageable, int sortCode, List<Tag> tags) {
+    public Page<Item> findItemsByTag(Pageable pageable, int sortCode, Tag tag) {
         List<ItemTag> result = jpaQueryFactory.selectFrom(itemTag)
                 .where(
-                        itemTag.tag.in(tags)
+                        itemTag.tag.eq(tag)
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())

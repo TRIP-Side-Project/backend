@@ -8,5 +8,5 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface ItemTagRepositoryCustom {
-    Page<Item> findItemsByTags(Pageable pageable, int sortCode, List<Tag> tags);
+    Page<Item> findItemsByTag(Pageable pageable, int sortCode, Tag tag);
 }

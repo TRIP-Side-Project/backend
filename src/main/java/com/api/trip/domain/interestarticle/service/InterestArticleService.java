@@ -1,5 +1,7 @@
 package com.api.trip.domain.interestarticle.service;
 
+import com.api.trip.common.exception.CustomException;
+import com.api.trip.common.exception.ErrorCode;
 import com.api.trip.domain.article.model.Article;
 import com.api.trip.domain.article.repository.ArticleRepository;
 import com.api.trip.domain.interestarticle.controller.dto.CreateInterestArticleRequest;
@@ -16,33 +18,42 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class InterestArticleService {
 
+    private final MemberRepository memberRepository;
     private final InterestArticleRepository interestArticleRepository;
     private final ArticleRepository articleRepository;
-    private final MemberRepository memberRepository;
 
     public Long createInterestArticle(CreateInterestArticleRequest request, String email) {
-        Member member = memberRepository.findByEmail(email).orElseThrow();
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
 
-        Article article = articleRepository.findById(request.getArticleId()).orElseThrow();
+        Article article = articleRepository.findById(request.getArticleId())
+                .orElseThrow(() -> new CustomException(ErrorCode.ARTICLE_NOT_FOUND));
 
-        InterestArticle interestArticle = interestArticleRepository.findByMemberAndArticle(member, article);
-        if (interestArticle != null) {
-            throw new RuntimeException("잘못된 요청입니다.");
-        }
+        interestArticleRepository.findByMemberAndArticle(member, article)
+                .ifPresent(interestArticle -> {
+                    throw new CustomException(ErrorCode.INTEREST_ARTICLE_ALREADY_EXISTS);
+                });
 
-        interestArticle = request.toEntity(member, article);
+        articleRepository.increaseLikeCount(article);
 
-        articleRepository.increaseLikeCount(interestArticle.getArticle());
-
-        return interestArticleRepository.save(interestArticle).getId();
+        return interestArticleRepository.save(
+                        InterestArticle.builder()
+                                .member(member)
+                                .article(article)
+                                .build()
+                )
+                .getId();
     }
 
     public void deleteInterestArticle(Long interestArticleId, String email) {
-        Member member = memberRepository.findByEmail(email).orElseThrow();
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
 
-        InterestArticle interestArticle = interestArticleRepository.findById(interestArticleId).orElseThrow();
+        InterestArticle interestArticle = interestArticleRepository.findById(interestArticleId)
+                .orElseThrow(() -> new CustomException(ErrorCode.INTEREST_ARTICLE_NOT_FOUND));
+
         if (interestArticle.getMember() != member) {
-            throw new RuntimeException("삭제 권한이 없습니다.");
+            throw new CustomException(ErrorCode.FORBIDDEN);
         }
 
         articleRepository.decreaseLikeCount(interestArticle.getArticle());

@@ -1,6 +1,10 @@
 package com.api.trip.domain.member.service;
 
+import com.api.trip.common.exception.ErrorCode;
+import com.api.trip.common.exception.custom_exception.DuplicateException;
 import com.api.trip.common.exception.custom_exception.InvalidException;
+import com.api.trip.common.exception.custom_exception.NotFoundException;
+import com.api.trip.common.exception.custom_exception.NotMatchException;
 import com.api.trip.common.security.jwt.JwtToken;
 import com.api.trip.common.security.jwt.JwtTokenProvider;
 import com.api.trip.common.security.util.JwtTokenUtils;
@@ -41,16 +45,17 @@ public class MemberService {
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtTokenUtils jwtTokenUtils;
 
+    // 회원가입
     public void join(JoinRequest joinRequest) throws IOException {
 
         // 중복된 회원이 있는지 검사
         memberRepository.findByEmail(joinRequest.getEmail()).ifPresent(it -> {
-            throw new RuntimeException("이미 존재하는 회원 입니다.");
+            throw new DuplicateException(ErrorCode.ALREADY_JOINED);
         });
 
         // 이메일 인증이 완료 여부 검사
         EmailAuth emailAuth = emailAuthRepository.findTop1ByEmailAndExpiredIsTrueOrderByCreatedAtDesc(joinRequest.getEmail())
-                .orElseThrow(() -> new RuntimeException("이메일 인증 토큰 정보가 없습니다!"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_EMAIL_TOKEN));
 
         MultipartFile profileImg = joinRequest.getProfileImg();
 
@@ -61,7 +66,7 @@ public class MemberService {
         } else {
             // 파일 변조 여부 체크
             if (!MultipartFileUtils.isPermission(profileImg.getInputStream())) {
-                throw new RuntimeException("프로필 사진은 이미지 파일만 선택 가능합니다!");
+                throw new InvalidException(ErrorCode.INVALID_IMAGE_TYPE);
             }
 
             // 요청 파일 이미지가 있는 경우 s3 업로드
@@ -79,6 +84,7 @@ public class MemberService {
         memberRepository.save(member);
     }
 
+    // 로그인
     public LoginResponse login(LoginRequest loginRequest) {
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword());
         Authentication authentication = authenticationManagerBuilder.getObject().authenticate(authenticationToken);
@@ -91,45 +97,47 @@ public class MemberService {
         return LoginResponse.of(jwtToken);
     }
 
-    public void deleteMember(DeleteRequest deleteRequest) {
-        Member member = getAuthenticationMember();
-
-        if (!passwordEncoder.matches(deleteRequest.getPassword(), member.getPassword())) {
-            throw new RuntimeException("비밀번호가 일치하지 않습니다.");
-        }
-
-        memberRepository.deleteById(member.getId());
-    }
-
-    // 회원의 비밀번호를 메일로 전송한 임시 비밀번호로 변경
-    public void changePassword(String email, String password) {
-        Member member = memberRepository.findByEmail(email).orElseThrow();
-        member.changePassword(passwordEncoder.encode(password));
-    }
-
+    // 비밀번호 변경
     public void updatePassword(UpdatePasswordRequest updatePasswordRequest) {
         Member member = getAuthenticationMember();
 
         if (!passwordEncoder.matches(updatePasswordRequest.getCurrentPassword(), member.getPassword())) {
-            throw new RuntimeException("비밀번호가 일치하지 않습니다!");
+            throw new NotMatchException(ErrorCode.INVALID_CURRENT_PASSWORD);
         }
 
         if (!updatePasswordRequest.getNewPassword().equals(updatePasswordRequest.getNewPasswordConfirm())) {
-            throw new RuntimeException("새 비밀번호를 다시 입력해주세요!");
+            throw new NotMatchException(ErrorCode.INVALID_NEW_PASSWORD);
         }
 
         member.changePassword(passwordEncoder.encode(updatePasswordRequest.getNewPassword()));
     }
 
+    // 회원 탈퇴
+    public void deleteMember(DeleteRequest deleteRequest) {
+        Member member = getAuthenticationMember();
+
+        if (!passwordEncoder.matches(deleteRequest.getPassword(), member.getPassword())) {
+            throw new NotMatchException(ErrorCode.INVALID_CURRENT_PASSWORD);
+        }
+
+        memberRepository.deleteById(member.getId());
+    }
+
+    // 회원의 비밀번호를 임시 비밀번호로 업데이트
+    public void changePassword(String email, String password) {
+        Member member = memberRepository.findByEmail(email).orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_MEMBER));
+        member.changePassword(passwordEncoder.encode(password));
+    }
+
 
     @Transactional(readOnly = true)
     public Member getMemberByEmail(String email) {
-        return memberRepository.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("가입된 회원이 아닙니다!"));
+        return memberRepository.findByEmail(email).orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_MEMBER));
     }
 
     @Transactional(readOnly = true)
     public Member getAuthenticationMember() {
-        return memberRepository.findByEmail(SecurityUtils.getCurrentUsername()).orElseThrow(() -> new UsernameNotFoundException("가입된 회원이 아닙니다!"));
+        return memberRepository.findByEmail(SecurityUtils.getCurrentUsername()).orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_MEMBER));
     }
 
     /**

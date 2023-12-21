@@ -20,13 +20,8 @@ public class ArticleFileUploader {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
-    public String upload(MultipartFile multipartFile, String fileName) {
-        InputStream inputStream;
-        try {
-            inputStream = multipartFile.getInputStream();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public String upload(MultipartFile multipartFile, String fileName) throws IOException {
+        InputStream inputStream = multipartFile.getInputStream();
 
         ObjectMetadata objectMetadata = new ObjectMetadata();
         objectMetadata.setContentType(multipartFile.getContentType());

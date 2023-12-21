@@ -1,5 +1,8 @@
 package com.api.trip.domain.email.service;
 
+import com.api.trip.common.exception.ErrorCode;
+import com.api.trip.common.exception.custom_exception.BadRequestException;
+import com.api.trip.common.exception.custom_exception.NotFoundException;
 import com.api.trip.domain.email.model.EmailAuth;
 import com.api.trip.domain.email.repository.EmailAuthRepository;
 import com.api.trip.domain.member.controller.dto.EmailResponse;
@@ -16,6 +19,8 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -31,6 +36,7 @@ public class EmailService {
     private final JavaMailSender javaMailSender;
     private final EmailAuthRepository emailAuthRepository;
     private final MemberRepository memberRepository;
+    private final SpringTemplateEngine templateEngine;
 
     @Async
     public void send(String email, String authToken) {
@@ -39,14 +45,18 @@ public class EmailService {
             throw new RuntimeException("이메일 인증이 완료된 회원입니다!");
         }
 
-        String authLink = "https://triptrip.site/api/members/auth-email/%s/%s".formatted(email, authToken);
-
         MimeMessage message = javaMailSender.createMimeMessage();
 
         try {
-            message.setSubject("[TRIP TRIP] 회원가입 인증 링크 발급");
+            Context context = new Context();
+            context.setVariable("auth_url", "https://triptrip.site/api/members/auth-email/%s/%s".formatted(email, authToken));
+
+            String html = templateEngine.process("email_auth_mail", context);
+
+            message.setSubject("[TRIP TRIP] 이메일 인증 안내입니다.");
             message.setRecipients(MimeMessage.RecipientType.TO, email);
-            message.setText(authLink, "UTF-8", "HTML");
+            message.setText(html, "UTF-8", "HTML");
+
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
@@ -59,20 +69,25 @@ public class EmailService {
         String email = findPasswordRequest.getEmail();
 
         if (email == null || email.isEmpty()) {
-            throw new RuntimeException("이메일 정보가 없습니다!");
+            throw new BadRequestException(ErrorCode.EMPTY_EMAIL);
         }
 
         // 가입 회원 여부 검사
         Member member = memberService.getMemberByEmail(email);
-
         String newPassword = getRandomPassword();
-        String text = "회원님의 임시 비밀번호는 %s 입니다. 로그인 후에 비밀번호를 변경해주세요.".formatted(newPassword);
 
         MimeMessage message = javaMailSender.createMimeMessage();
         try {
-            message.setSubject("[TRIP TRIP] 임시 비밀번호 발급");
+
+            Context context = new Context();
+            context.setVariable("newPassword", newPassword);
+
+            String html = templateEngine.process("find_password_mail", context);
+
+            message.setSubject("[TRIP TRIP] 임시 비밀번호 안내입니다.");
             message.setRecipients(MimeMessage.RecipientType.TO, email);
-            message.setText(text);
+            message.setText(html, "UTF-8", "HTML");
+
         } catch (MessagingException e) {
             throw new RuntimeException(e);
         }
@@ -84,7 +99,7 @@ public class EmailService {
     // 인증 메일 검증
     public EmailResponse authEmail(String email, String authToken) {
         EmailAuth emailAuth = emailAuthRepository.findValidAuthByEmail(email, authToken, LocalDateTime.now())
-                .orElseThrow(() -> new RuntimeException("토큰 정보가 일치하지 않습니다!"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_EMAIL_TOKEN));
 
         emailAuth.useToken(); // 토큰 사용 -> 만료
         return EmailResponse.of(emailAuth.isExpired());
