@@ -71,9 +71,11 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private static String createCookie(String name, String value) {
         return ResponseCookie.from(name, value)
+                .domain("localhost")
                 .path("/")
                 .httpOnly(true)
-                .sameSite("None")
+                //.sameSite("None") // https 환경에서 활성화
+                //.secure(false) // https 환경에서 활성화
                 .build()
                 .toString();
     }
