@@ -73,6 +73,7 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private static String createCookie(String name, String value) {
         return ResponseCookie.from(name, value)
+                .domain("localhost")
                 .path("/")
                 .httpOnly(true)
                 .maxAge(60 * 60 * 6)
