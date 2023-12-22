@@ -1,5 +1,7 @@
 package com.api.trip.common.security.oauth;
 
+import com.api.trip.common.exception.ErrorCode;
+import com.api.trip.common.exception.custom_exception.NotFoundException;
 import com.api.trip.common.security.jwt.JwtToken;
 import com.api.trip.common.security.jwt.JwtTokenProvider;
 import com.api.trip.domain.member.controller.dto.LoginResponse;
@@ -39,33 +41,33 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
-        String email = oAuth2User.getAttribute("email");
+        String provider = oAuth2User.getAttribute("provider");
+
+        // KAKAO_user123@naver.com
+        String email = provider + "_" + oAuth2User.getAttribute("email");
         Optional<Member> findMember = memberRepository.findByEmail(email);
 
         // 회원이 아닌 경우에 회원 가입 진행
-
-        Long memberId = 0L;
-        String role = "";
-
+        Member member = null;
         if (findMember.isEmpty()) {
-            String name = oAuth2User.getAttribute("name");
+            // KAKAO_user123
+            String name = provider + "_" + oAuth2User.getAttribute("name");
             String picture = oAuth2User.getAttribute("picture");
 
-            Member member = Member.of(email, "", name, picture);
+            member = Member.of(email, "", name, picture);
             memberRepository.save(member);
-
-            memberId = member.getId();
-            role = member.getRole().getValue();
+        } else {
+            member = findMember.orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_MEMBER));
         }
 
         // OAuth2User 객체에서 권한 가져옴
-        JwtToken jwtToken = jwtTokenProvider.createJwtToken(email, role);
+        JwtToken jwtToken = jwtTokenProvider.createJwtToken(member.getEmail(), member.getRole().getValue());
 
-        // 쿠키 세팅
-        response.addHeader(HttpHeaders.SET_COOKIE, createCookie("tokenType", "Bearer"));
         response.addHeader(HttpHeaders.SET_COOKIE, createCookie("accessToken", jwtToken.getAccessToken()));
         response.addHeader(HttpHeaders.SET_COOKIE, createCookie("refreshToken", jwtToken.getRefreshToken()));
-        response.addHeader(HttpHeaders.SET_COOKIE, createCookie("memberId", String.valueOf(memberId)));
+        response.addHeader(HttpHeaders.SET_COOKIE, createCookie("memberId", String.valueOf(member.getId())));
+
+        // TODO: 프론트 배포 주소로 변경 예정
         response.sendRedirect("http://localhost:5173/home");
     }
 
@@ -74,8 +76,9 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
                 .domain("localhost")
                 .path("/")
                 .httpOnly(true)
-                //.sameSite("None") // https 환경에서 활성화
-                //.secure(false) // https 환경에서 활성화
+                .maxAge(60 * 60 * 6)
+                // .sameSite("None") https 시 활성화
+                //.secure(true) https 시 활성화
                 .build()
                 .toString();
     }
