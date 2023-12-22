@@ -45,7 +45,9 @@ public enum ErrorCode {
     INTEREST_ARTICLE_ALREADY_EXISTS("이미 좋아한 게시글입니다.", HttpStatus.BAD_REQUEST),
     INTEREST_ARTICLE_NOT_FOUND("좋아한 게시글이 아닙니다.", HttpStatus.NOT_FOUND),
     UPLOAD_FAILED("파일 업로드에 실패하였습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
-    ;
+
+    // 알림
+    NOTIFICATION_NOT_FOUND("존재하지 않는 알림입니다.", HttpStatus.NOT_FOUND);
 
     private final String message;
     private final HttpStatus status;
