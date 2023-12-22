@@ -21,18 +21,19 @@ public class OAuth2Attribute {
     private String email; // 이메일
     private String name; // 이름
     private String picture; // 프로필 사진
+    private String provider; // 플랫폼
 
     static OAuth2Attribute of(String provider, String attributeKey, Map<String, Object> attributes) {
         // 각 플랫폼 별로 제공해주는 데이터가 조금씩 다르기 때문에 분기 처리함.
         return switch (provider) {
-            case "google" -> google(attributeKey, attributes);
-            case "kakao" -> kakao(attributeKey, attributes);
-            case "naver" -> naver(attributeKey, attributes);
+            case "google" -> google(provider, attributeKey, attributes);
+            case "kakao" -> kakao(provider, attributeKey, attributes);
+            case "naver" -> naver(provider, attributeKey, attributes);
             default -> throw new NotFoundException(ErrorCode.NOT_FOUND_PROVIDER);
         };
     }
 
-    private static OAuth2Attribute google(String attributeKey, Map<String, Object> attributes) {
+    private static OAuth2Attribute google(String provider, String attributeKey, Map<String, Object> attributes) {
         log.debug("google: {}", attributes);
         return OAuth2Attribute.builder()
                 .email((String) attributes.get("email"))
@@ -40,23 +41,25 @@ public class OAuth2Attribute {
                 .picture((String)attributes.get("picture"))
                 .attributes(attributes)
                 .attributeKey(attributeKey)
+                .provider(provider)
                 .build();
     }
 
-    private static OAuth2Attribute kakao(String attributeKey, Map<String, Object> attributes) {
+    private static OAuth2Attribute kakao(String provider, String attributeKey, Map<String, Object> attributes) {
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
         Map<String, Object> kakaoProfile = (Map<String, Object>) kakaoAccount.get("profile");
 
         return OAuth2Attribute.builder()
-                .email("KAKAO_" + (String) kakaoAccount.get("email"))
+                .email((String) kakaoAccount.get("email"))
                 .name((String) kakaoProfile.get("nickname"))
                 .picture((String) kakaoProfile.get("profile_image_url"))
                 .attributes(kakaoAccount)
                 .attributeKey(attributeKey)
+                .provider(provider)
                 .build();
     }
 
-    private static OAuth2Attribute naver(String attributeKey, Map<String, Object> attributes) {
+    private static OAuth2Attribute naver(String provider, String attributeKey, Map<String, Object> attributes) {
         Map<String, Object> response = (Map<String, Object>) attributes.get("response");
 
         return OAuth2Attribute.builder()
@@ -65,6 +68,7 @@ public class OAuth2Attribute {
                 .picture((String) response.get("profile_image"))
                 .attributes(response)
                 .attributeKey(attributeKey)
+                .provider(provider)
                 .build();
     }
 
@@ -77,6 +81,7 @@ public class OAuth2Attribute {
         map.put("email", email);
         map.put("name", name);
         map.put("picture", picture);
+        map.put("provider", provider);
 
         return map;
     }
