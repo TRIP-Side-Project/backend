@@ -41,13 +41,17 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
-        String email = oAuth2User.getAttribute("email");
+        String provider = oAuth2User.getAttribute("provider");
+
+        // KAKAO_user123@naver.com
+        String email = provider + "_" + oAuth2User.getAttribute("email");
         Optional<Member> findMember = memberRepository.findByEmail(email);
 
         // 회원이 아닌 경우에 회원 가입 진행
         Member member = null;
         if (findMember.isEmpty()) {
-            String name = oAuth2User.getAttribute("name");
+            // KAKAO_user123
+            String name = provider + "_" + oAuth2User.getAttribute("name");
             String picture = oAuth2User.getAttribute("picture");
 
             member = Member.of(email, "", name, picture);
