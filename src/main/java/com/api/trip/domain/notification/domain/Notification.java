@@ -25,7 +25,7 @@ public class Notification extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     private Item item;
 
-    @Column(nullable = false)
+    @Column(name = "read_or_not", nullable = false)
     private boolean read;
 
     @Builder
