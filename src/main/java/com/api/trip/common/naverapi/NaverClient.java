@@ -1,7 +1,7 @@
-package com.api.trip.common.naverclient;
+package com.api.trip.common.naverapi;
 
-import com.api.trip.common.naverclient.dto.ShoppingRequest;
-import com.api.trip.common.naverclient.dto.ShoppingResponse;
+import com.api.trip.common.naverapi.dto.ShoppingRequest;
+import com.api.trip.common.naverapi.dto.ShoppingResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

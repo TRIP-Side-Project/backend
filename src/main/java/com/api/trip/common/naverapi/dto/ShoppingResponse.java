@@ -1,4 +1,4 @@
-package com.api.trip.common.naverclient.dto;
+package com.api.trip.common.naverapi.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
