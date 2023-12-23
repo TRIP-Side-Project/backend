@@ -1,4 +1,4 @@
-package com.api.trip.common.naverclient.dto;
+package com.api.trip.common.naverapi.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ShoppingItem {
+    private Long productId;
     private String title;   //상품이름
     private String link;    //상품 url
     private String image;   //상품 이미지 url
@@ -16,4 +17,8 @@ public class ShoppingItem {
     private String mallName;    //상품을 판매하는 쇼핑몰
     private String maker;   //제조사
     private String brand;   //브랜드
+    private String category1;
+    private String category2;
+    private String category3;
+    private String category4;
 }
