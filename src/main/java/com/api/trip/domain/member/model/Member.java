@@ -2,6 +2,7 @@ package com.api.trip.domain.member.model;
 
 import com.api.trip.common.auditing.entity.BaseTimeEntity;
 import com.api.trip.domain.member.controller.dto.JoinRequest;
+import com.api.trip.domain.member.controller.dto.UpdateProfileRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -30,7 +31,9 @@ public class Member extends BaseTimeEntity {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false) // 기본 이미지가 무조건 들어갈 예정.
+    private String intro; // 자기 소개
+
+    @Column(nullable = false)
     private String profileImg;
 
     @Column(nullable = false)
@@ -64,5 +67,14 @@ public class Member extends BaseTimeEntity {
 
     public void changePassword(String password) {
         this.password = password;
+    }
+
+    public void changeProfileImg(String profileImgUrl) {
+        this.profileImg = profileImgUrl;
+    }
+
+    public void changeProfile(UpdateProfileRequest updateProfileRequest) {
+        this.nickname = updateProfileRequest.getNickname();
+        this.intro = updateProfileRequest.getIntro();
     }
 }
