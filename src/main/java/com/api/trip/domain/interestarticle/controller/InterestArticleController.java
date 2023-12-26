@@ -2,6 +2,7 @@ package com.api.trip.domain.interestarticle.controller;
 
 import com.api.trip.domain.interestarticle.controller.dto.CreateInterestArticleRequest;
 import com.api.trip.domain.interestarticle.service.InterestArticleService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,7 +16,7 @@ public class InterestArticleController {
     private final InterestArticleService interestArticleService;
 
     @PostMapping
-    public ResponseEntity<Long> createInterestArticle(@RequestBody CreateInterestArticleRequest request) {
+    public ResponseEntity<Long> createInterestArticle(@RequestBody @Valid CreateInterestArticleRequest request) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return ResponseEntity.ok(interestArticleService.createInterestArticle(request, email));
     }
