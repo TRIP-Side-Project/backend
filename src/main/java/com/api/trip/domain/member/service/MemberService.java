@@ -15,6 +15,7 @@ import com.api.trip.domain.email.model.EmailAuth;
 import com.api.trip.domain.email.repository.EmailAuthRepository;
 import com.api.trip.domain.member.controller.dto.*;
 import com.api.trip.domain.member.model.Member;
+import com.api.trip.domain.member.model.SocialCode;
 import com.api.trip.domain.member.repository.MemberRepository;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -87,7 +88,8 @@ public class MemberService {
                 joinRequest.getEmail(),
                 passwordEncoder.encode(joinRequest.getPassword()),
                 joinRequest.getNickname(),
-                profileImgUrl
+                profileImgUrl,
+                SocialCode.NORMAL
         );
 
         memberRepository.save(member);

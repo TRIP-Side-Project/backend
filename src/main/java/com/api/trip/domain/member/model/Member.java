@@ -38,23 +38,29 @@ public class Member extends BaseTimeEntity {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
+    private SocialCode socialCode;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private MemberRole role;
 
     @Builder
-    private Member(String email, String password, String nickname, String profileImg){
+    private Member(String email, String password, String nickname, String profileImg, SocialCode socialCode){
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.profileImg = profileImg;
+        this.socialCode = socialCode;
         this.role = MemberRole.MEMBER;
     }
 
-    public static Member of(String email, String password, String nickname, String profileImg) {
+    public static Member of(String email, String password, String nickname, String profileImg, SocialCode socialCode) {
         return Member.builder()
                 .email(email)
                 .password(password)
                 .nickname(nickname)
                 .profileImg(profileImg)
+                .socialCode(socialCode)
                 .build();
     }
 
