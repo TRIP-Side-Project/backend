@@ -16,7 +16,10 @@ import com.api.trip.domain.email.repository.EmailAuthRepository;
 import com.api.trip.domain.member.controller.dto.*;
 import com.api.trip.domain.member.model.Member;
 import com.api.trip.domain.member.repository.MemberRepository;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
@@ -33,6 +36,7 @@ import java.util.stream.Collectors;
 import static com.api.trip.common.exception.ErrorCode.SNATCH_TOKEN;
 
 @Service
+@Slf4j
 @Transactional
 @RequiredArgsConstructor
 public class MemberService {
@@ -44,6 +48,12 @@ public class MemberService {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtTokenUtils jwtTokenUtils;
+
+    @Value("${cloud.aws.default-image}")
+    private String defaultProfileImgUrl;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
 
     // 회원가입
     public void join(JoinRequest joinRequest) throws IOException {
@@ -111,6 +121,40 @@ public class MemberService {
 
         member.changePassword(passwordEncoder.encode(updatePasswordRequest.getNewPassword()));
     }
+
+    // TODO: 관심 태그 저장하는 로직 구현해야함.
+    // 회원 정보 수정
+    public void updateProfile(UpdateProfileRequest updateProfileRequest) throws IOException {
+        Member member = getAuthenticationMember();
+
+        MultipartFile profileImg = updateProfileRequest.getProfileImg();
+
+        String profileImgUrl = "";
+        // 프로필 사진 데이터가 넘어오는 경우에만 업로드 후 변경
+        if (profileImg != null && !profileImg.isEmpty()) {
+            if (!MultipartFileUtils.isPermission(profileImg.getInputStream())) {
+                throw new InvalidException(ErrorCode.INVALID_IMAGE_TYPE);
+            }
+
+            // 이전 프로필 이미지가 기본 이미지가 아니라면 s3에서 삭제 후 업로드
+            String prevProfileImgUrl = member.getProfileImg();
+            if (!prevProfileImgUrl.contains(defaultProfileImgUrl)) {
+                String key = prevProfileImgUrl.split(bucket + "/")[1];
+                log.debug("s3 delete key: {}", key);
+
+                amazonS3Service.delete(key);
+                log.debug("deleting previous profile-img: {}", prevProfileImgUrl);
+            }
+
+            // 요청 파일 이미지가 있는 경우 s3 업로드
+            profileImgUrl = amazonS3Service.upload(profileImg);
+            member.changeProfileImg(profileImgUrl);
+        }
+
+        member.changeProfile(updateProfileRequest);
+    }
+
+
 
     // 회원 탈퇴
     public void deleteMember(DeleteRequest deleteRequest) {

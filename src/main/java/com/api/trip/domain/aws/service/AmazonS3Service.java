@@ -2,6 +2,8 @@ package com.api.trip.domain.aws.service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.api.trip.common.exception.ErrorCode;
+import com.api.trip.common.exception.custom_exception.AwsS3Exception;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,8 +52,7 @@ public class AmazonS3Service {
             log.debug("uploading aws s3.. upload path: {}", s3location + fileName);
             amazonS3.putObject(s3location, fileName, profileImg.getInputStream(), metadata);
         } catch (IOException e) {
-            // TODO: add exception
-            throw new RuntimeException("Fail AWS S3 Upload.. {}", e);
+            throw new AwsS3Exception(ErrorCode.AWS_FAIL_UPLOAD);
         }
 
         return String.valueOf(amazonS3.getUrl(s3location, fileName));

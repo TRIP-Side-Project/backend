@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/members")
@@ -43,7 +44,6 @@ public class MemberController {
     }
 
     // 인증 메일 전송
-    // TODO: 리팩토링 예정..
     @PostMapping("/send-email/{email}")
     public void sendAuthEmail(@PathVariable String email) {
         emailService.send(email, emailService.createEmailAuth(email));
@@ -65,6 +65,13 @@ public class MemberController {
     @PostMapping("/find/password")
     public ResponseEntity<Void> sendNewPassword(@RequestBody FindPasswordRequest findPasswordRequest) {
         emailService.sendNewPassword(findPasswordRequest);
+        return ResponseEntity.ok().build();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @PatchMapping("/me")
+    public ResponseEntity<Void> updateProfile(@ModelAttribute UpdateProfileRequest updateProfileRequest) throws IOException {
+        memberService.updateProfile(updateProfileRequest);
         return ResponseEntity.ok().build();
     }
 

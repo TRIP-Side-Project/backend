@@ -2,6 +2,7 @@ package com.api.trip.domain.article.controller;
 
 import com.api.trip.domain.article.controller.dto.*;
 import com.api.trip.domain.article.service.ArticleService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -17,13 +18,13 @@ public class ArticleController {
     private final ArticleService articleService;
 
     @PostMapping
-    public ResponseEntity<Long> createArticle(@RequestBody CreateArticleRequest request) {
+    public ResponseEntity<Long> createArticle(@RequestBody @Valid CreateArticleRequest request) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return ResponseEntity.ok(articleService.createArticle(request, email));
     }
 
     @PatchMapping("/{articleId}")
-    public ResponseEntity<Void> updateArticle(@PathVariable Long articleId, @RequestBody UpdateArticleRequest request) {
+    public ResponseEntity<Void> updateArticle(@PathVariable Long articleId, @RequestBody @Valid UpdateArticleRequest request) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         articleService.updateArticle(articleId, request, email);
         return ResponseEntity.ok().build();

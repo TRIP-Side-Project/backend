@@ -5,6 +5,7 @@ import com.api.trip.domain.comment.controller.dto.GetCommentsResponse;
 import com.api.trip.domain.comment.controller.dto.GetMyCommentsResponse;
 import com.api.trip.domain.comment.controller.dto.UpdateCommentRequest;
 import com.api.trip.domain.comment.service.CommentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,13 +19,13 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping
-    public ResponseEntity<Long> createComment(@RequestBody CreateCommentRequest request) {
+    public ResponseEntity<Long> createComment(@RequestBody @Valid CreateCommentRequest request) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return ResponseEntity.ok(commentService.createComment(request, email));
     }
 
     @PatchMapping("/{commentId}")
-    public ResponseEntity<Void> updateComment(@PathVariable Long commentId, @RequestBody UpdateCommentRequest request) {
+    public ResponseEntity<Void> updateComment(@PathVariable Long commentId, @RequestBody @Valid UpdateCommentRequest request) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         commentService.updateComment(commentId, request, email);
         return ResponseEntity.ok().build();
