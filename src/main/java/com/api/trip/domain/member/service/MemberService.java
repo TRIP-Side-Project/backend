@@ -104,7 +104,8 @@ public class MemberService {
                 .collect(Collectors.joining(","));
 
         JwtToken jwtToken = jwtTokenProvider.createJwtToken(loginRequest.getEmail(), authorities);
-        return LoginResponse.of(jwtToken);
+        Member member = getMemberByEmail(loginRequest.getEmail());
+        return LoginResponse.of(jwtToken, member);
     }
 
     // 비밀번호 변경
