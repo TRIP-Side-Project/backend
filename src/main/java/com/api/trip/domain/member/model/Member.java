@@ -40,8 +40,6 @@ public class Member extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private MemberRole role;
 
-    private boolean emailAuth;
-
     @Builder
     private Member(String email, String password, String nickname, String profileImg){
         this.email = email;
@@ -58,11 +56,6 @@ public class Member extends BaseTimeEntity {
                 .nickname(nickname)
                 .profileImg(profileImg)
                 .build();
-    }
-
-    // 이메일 인증 상태 변경 메서드
-    public void emailVerifiedSuccess() {
-        this.emailAuth = true;
     }
 
     public void changePassword(String password) {

@@ -58,13 +58,13 @@ public class MemberService {
     // 회원가입
     public void join(JoinRequest joinRequest) throws IOException {
 
-        // 중복된 회원이 있는지 검사
+        // 중복된 회원이 있는지 확인
         memberRepository.findByEmail(joinRequest.getEmail()).ifPresent(it -> {
             throw new DuplicateException(ErrorCode.ALREADY_JOINED);
         });
 
-        // 이메일 인증이 완료 여부 검사
-        EmailAuth emailAuth = emailAuthRepository.findTop1ByEmailAndExpiredIsTrueOrderByCreatedAtDesc(joinRequest.getEmail())
+        // 이메일 인증이 완료 여부 확인
+        emailAuthRepository.findTop1ByEmailAndExpiredIsTrueOrderByCreatedAtDesc(joinRequest.getEmail())
                 .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_EMAIL_TOKEN));
 
         MultipartFile profileImg = joinRequest.getProfileImg();
@@ -90,7 +90,6 @@ public class MemberService {
                 profileImgUrl
         );
 
-        member.emailVerifiedSuccess();
         memberRepository.save(member);
     }
 
