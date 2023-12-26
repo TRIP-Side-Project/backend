@@ -1,6 +1,8 @@
 package com.api.trip.common.init;
 
 import com.api.trip.domain.member.model.Member;
+import com.api.trip.domain.member.model.MemberRole;
+import com.api.trip.domain.member.model.SocialCode;
 import com.api.trip.domain.member.repository.MemberRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -19,7 +21,7 @@ public class DevInitMember {
     @Bean
     public CommandLineRunner init(MemberRepository memberRepository, PasswordEncoder passwordEncoder) {
         return args -> {
-            memberRepository.save(createMember("trip123@test.com", "trip_member", passwordEncoder.encode("trip1234")));
+            memberRepository.save(createMember("trip123@test.com", "trip123", passwordEncoder.encode("trip1234")));
             memberRepository.save(createMember("admin@test.com", "admin", passwordEncoder.encode("trip1234")));
         };
     }
@@ -30,6 +32,7 @@ public class DevInitMember {
                 .nickname(nickname)
                 .password(password)
                 .profileImg(defaultProfileImg)
+                .socialCode(SocialCode.NORMAL)
                 .build();
     }
 }
