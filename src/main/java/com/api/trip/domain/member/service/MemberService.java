@@ -15,6 +15,7 @@ import com.api.trip.domain.email.model.EmailAuth;
 import com.api.trip.domain.email.repository.EmailAuthRepository;
 import com.api.trip.domain.member.controller.dto.*;
 import com.api.trip.domain.member.model.Member;
+import com.api.trip.domain.member.model.SocialCode;
 import com.api.trip.domain.member.repository.MemberRepository;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -58,13 +59,13 @@ public class MemberService {
     // 회원가입
     public void join(JoinRequest joinRequest) throws IOException {
 
-        // 중복된 회원이 있는지 검사
+        // 중복된 회원이 있는지 확인
         memberRepository.findByEmail(joinRequest.getEmail()).ifPresent(it -> {
             throw new DuplicateException(ErrorCode.ALREADY_JOINED);
         });
 
-        // 이메일 인증이 완료 여부 검사
-        EmailAuth emailAuth = emailAuthRepository.findTop1ByEmailAndExpiredIsTrueOrderByCreatedAtDesc(joinRequest.getEmail())
+        // 이메일 인증이 완료 여부 확인
+        emailAuthRepository.findTop1ByEmailAndExpiredIsTrueOrderByCreatedAtDesc(joinRequest.getEmail())
                 .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_EMAIL_TOKEN));
 
         MultipartFile profileImg = joinRequest.getProfileImg();
@@ -87,10 +88,10 @@ public class MemberService {
                 joinRequest.getEmail(),
                 passwordEncoder.encode(joinRequest.getPassword()),
                 joinRequest.getNickname(),
-                profileImgUrl
+                profileImgUrl,
+                SocialCode.NORMAL
         );
 
-        member.emailVerifiedSuccess();
         memberRepository.save(member);
     }
 
@@ -104,7 +105,8 @@ public class MemberService {
                 .collect(Collectors.joining(","));
 
         JwtToken jwtToken = jwtTokenProvider.createJwtToken(loginRequest.getEmail(), authorities);
-        return LoginResponse.of(jwtToken);
+        Member member = getMemberByEmail(loginRequest.getEmail());
+        return LoginResponse.of(jwtToken, member);
     }
 
     // 비밀번호 변경
