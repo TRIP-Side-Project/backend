@@ -10,6 +10,7 @@ public enum ErrorCode {
     EMPTY_REFRESH_TOKEN("RefreshToken이 필요합니다.", HttpStatus.BAD_REQUEST),
     EMPTY_EMAIL("이메일이 필요합니다.", HttpStatus.BAD_REQUEST),
     INVALID_IMAGE_TYPE("유효하지 않은 파일 형식입니다.", HttpStatus.BAD_REQUEST),
+    AWS_FAIL_UPLOAD("AWS S3 업로드 실패!", HttpStatus.CONFLICT),
 
     // 401
     LOGOUTED_TOKEN("이미 로그아웃 처리된 토큰입니다.", HttpStatus.UNAUTHORIZED),
