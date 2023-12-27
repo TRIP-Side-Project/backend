@@ -9,10 +9,16 @@ import com.api.trip.common.security.jwt.JwtToken;
 import com.api.trip.common.security.jwt.JwtTokenProvider;
 import com.api.trip.common.security.util.JwtTokenUtils;
 import com.api.trip.common.security.util.SecurityUtils;
+import com.api.trip.domain.article.repository.ArticleRepository;
 import com.api.trip.domain.aws.util.MultipartFileUtils;
 import com.api.trip.domain.aws.service.AmazonS3Service;
+import com.api.trip.domain.comment.repository.CommentRepository;
 import com.api.trip.domain.email.model.EmailAuth;
 import com.api.trip.domain.email.repository.EmailAuthRepository;
+import com.api.trip.domain.interestarticle.repository.InterestArticleRepository;
+import com.api.trip.domain.interestitem.model.InterestItem;
+import com.api.trip.domain.interestitem.repository.InterestItemRepository;
+import com.api.trip.domain.interesttag.respository.InterestTagRepository;
 import com.api.trip.domain.interesttag.service.InterestTagService;
 import com.api.trip.domain.member.controller.dto.*;
 import com.api.trip.domain.member.model.Member;
@@ -33,6 +39,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InvalidClassException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.api.trip.common.exception.ErrorCode.SNATCH_TOKEN;
@@ -43,11 +51,16 @@ import static com.api.trip.common.exception.ErrorCode.SNATCH_TOKEN;
 @RequiredArgsConstructor
 public class MemberService {
 
+    private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
     private final EmailAuthRepository emailAuthRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final ArticleRepository articleRepository;
+    private final CommentRepository commentRepository;
+    private final InterestItemRepository interestItemRepository;
+
     private final AmazonS3Service amazonS3Service;
     private final InterestTagService interestTagService;
+
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtTokenUtils jwtTokenUtils;
@@ -111,6 +124,19 @@ public class MemberService {
         return LoginResponse.of(jwtToken, member);
     }
 
+    public MyPageResponse myPage() {
+        Member member = getAuthenticationMember();
+
+        Long articleCount = articleRepository.countByWriter_Id(member.getId());
+        Long commentCount = commentRepository.countByWriter_Id(member.getId());
+        Long likeItemCount = interestItemRepository.countByMember_Id(member.getId());
+
+        long[] counts = {articleCount, commentCount, likeItemCount};
+        List<String> tags = interestTagService.getInterestTag(member);
+
+        return MyPageResponse.of(member, counts, tags);
+    }
+
     // 비밀번호 변경
     public void updatePassword(UpdatePasswordRequest updatePasswordRequest) {
         Member member = getAuthenticationMember();
@@ -126,7 +152,6 @@ public class MemberService {
         member.changePassword(passwordEncoder.encode(updatePasswordRequest.getNewPassword()));
     }
 
-    // TODO: 관심 태그 저장하는 로직 구현해야함.
     // 회원 정보 수정
     public void updateProfile(UpdateProfileRequest updateProfileRequest) throws IOException {
         Member member = getAuthenticationMember();
