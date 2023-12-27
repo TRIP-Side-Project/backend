@@ -13,6 +13,7 @@ import com.api.trip.domain.aws.util.MultipartFileUtils;
 import com.api.trip.domain.aws.service.AmazonS3Service;
 import com.api.trip.domain.email.model.EmailAuth;
 import com.api.trip.domain.email.repository.EmailAuthRepository;
+import com.api.trip.domain.interesttag.service.InterestTagService;
 import com.api.trip.domain.member.controller.dto.*;
 import com.api.trip.domain.member.model.Member;
 import com.api.trip.domain.member.model.SocialCode;
@@ -46,6 +47,7 @@ public class MemberService {
     private final EmailAuthRepository emailAuthRepository;
     private final PasswordEncoder passwordEncoder;
     private final AmazonS3Service amazonS3Service;
+    private final InterestTagService interestTagService;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final JwtTokenProvider jwtTokenProvider;
     private final JwtTokenUtils jwtTokenUtils;
@@ -153,6 +155,8 @@ public class MemberService {
             member.changeProfileImg(profileImgUrl);
         }
 
+        // 관심 태그 저장
+        interestTagService.createTag(member, updateProfileRequest.getTags());
         member.changeProfile(updateProfileRequest);
     }
 
