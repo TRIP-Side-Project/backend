@@ -29,17 +29,16 @@ public class Item  extends BaseTimeEntity {
     @Column(nullable = false)
     private String buyUrl;
 
-    @Column(nullable = false)
-    private long maxPrice;
+    private Integer maxPrice;
 
     @Column(nullable = false)
-    private long minPrice;
+    private Integer minPrice;
 
     @Column(nullable = false)
-    private long viewCount;
+    private Integer viewCount;
 
     @Column(nullable = false)
-    private long likeCount;
+    private Integer likeCount;
 
     @Column(nullable = false)
     private String imageUrl;
@@ -52,7 +51,7 @@ public class Item  extends BaseTimeEntity {
 
 
     @Builder
-    private Item(Long productId, String title, String shopName, String buyUrl, long maxPrice, long minPrice, String imageUrl, Member writer) {
+    private Item(Long productId, String title, String shopName, String buyUrl, Integer maxPrice, Integer minPrice, String imageUrl, Member writer) {
         this.productId = productId;
         this.title = title;
         this.shopName = shopName;
