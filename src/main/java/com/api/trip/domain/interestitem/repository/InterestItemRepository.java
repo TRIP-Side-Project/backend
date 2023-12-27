@@ -11,4 +11,6 @@ public interface InterestItemRepository extends JpaRepository<InterestItem, Long
     Page<InterestItem> findByMember(Member member, Pageable pageable);
 
     InterestItem findByItem_Id(Long itemId);
+
+    Long countByMember_Id(Long memberId);
 }
