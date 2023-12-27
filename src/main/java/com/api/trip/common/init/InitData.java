@@ -6,6 +6,7 @@ import com.api.trip.common.naverapi.dto.ShoppingItem;
 import com.api.trip.common.naverapi.dto.ShoppingRequest;
 import com.api.trip.common.naverapi.dto.ShoppingResponse;
 import com.api.trip.domain.item.controller.dto.CreateItemRequest;
+import com.api.trip.domain.item.service.ItemService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -19,24 +20,31 @@ public class InitData implements ApplicationRunner {
 
     private final NaverClient naverClient;
     private final NaverApiService naverApiService;
+    private final ItemService itemService;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
+
 /*
 
-        ShoppingRequest request = ShoppingRequest.builder()
-                .start(1)
-                .display(100).build();
 
-        ShoppingResponse searchResponse = naverClient.search(request);
-        List<ShoppingItem> shoppingItems = naverApiService.doFilterCategory(searchResponse.getItems());
-        List<CreateItemRequest> createItemRequests = naverApiService.toCreateItemRequest(shoppingItems);
+        for(int i = 0; i < 2; i++) {
 
-        for(CreateItemRequest createItemRequest :createItemRequests)
-            System.out.println(createItemRequest.toString());
+            ShoppingRequest request = ShoppingRequest.builder()
+                    .start(1 + i * 100)
+                    .display(100).build();
 
+            ShoppingResponse searchResponse = naverClient.search(request);
+            List<ShoppingItem> shoppingItems = naverApiService.doFilterCategory(searchResponse.getItems());
+            List<CreateItemRequest> createItemRequests = naverApiService.toCreateItemRequest(shoppingItems);
+
+            for (CreateItemRequest createItemRequest : createItemRequests)
+                itemService.createItem(createItemRequest);
+
+
+
+        }
 */
-
     }
 }
