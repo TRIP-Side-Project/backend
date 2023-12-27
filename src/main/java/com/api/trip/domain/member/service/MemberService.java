@@ -16,7 +16,9 @@ import com.api.trip.domain.comment.repository.CommentRepository;
 import com.api.trip.domain.email.model.EmailAuth;
 import com.api.trip.domain.email.repository.EmailAuthRepository;
 import com.api.trip.domain.interestarticle.repository.InterestArticleRepository;
+import com.api.trip.domain.interestitem.model.InterestItem;
 import com.api.trip.domain.interestitem.repository.InterestItemRepository;
+import com.api.trip.domain.interesttag.respository.InterestTagRepository;
 import com.api.trip.domain.interesttag.service.InterestTagService;
 import com.api.trip.domain.member.controller.dto.*;
 import com.api.trip.domain.member.model.Member;
@@ -37,6 +39,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InvalidClassException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.api.trip.common.exception.ErrorCode.SNATCH_TOKEN;
@@ -120,15 +124,18 @@ public class MemberService {
         return LoginResponse.of(jwtToken, member);
     }
 
-    // TODO: implementing..
     public MyPageResponse myPage() {
         Member member = getAuthenticationMember();
+
         Long articleCount = articleRepository.countByWriter_Id(member.getId());
         Long commentCount = commentRepository.countByWriter_Id(member.getId());
         Long likeItemCount = interestItemRepository.countByMember_Id(member.getId());
-        return MyPageResponse.of(member, articleCount, commentCount, likeItemCount);
-    }
 
+        long[] counts = {articleCount, commentCount, likeItemCount};
+        List<String> tags = interestTagService.getInterestTag(member);
+
+        return MyPageResponse.of(member, counts, tags);
+    }
 
     // 비밀번호 변경
     public void updatePassword(UpdatePasswordRequest updatePasswordRequest) {

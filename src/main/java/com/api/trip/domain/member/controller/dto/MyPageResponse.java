@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Builder
@@ -17,19 +18,20 @@ public class MyPageResponse {
     private LocalDateTime createdAt;
     private Long articleCount;
     private Long commentCount;
-    private Long likeItemCount; // 좋아요를 누른 상품의 개수
+    private Long likeItemCount;
+    private List<String> tags;
 
-
-    public static MyPageResponse of(Member member, Long articleCount, Long commentCount, Long likeItemCount) {
+    public static MyPageResponse of(Member member, long[] counts, List<String> tags) {
         return MyPageResponse.builder()
                 .email(member.getEmail())
                 .nickname(member.getNickname())
                 .intro(member.getIntro())
                 .profileImg(member.getProfileImg())
                 .createdAt(member.getCreatedAt())
-                .articleCount(articleCount)
-                .commentCount(commentCount)
-                .likeItemCount(likeItemCount)
+                .articleCount(counts[0])
+                .commentCount(counts[1])
+                .likeItemCount(counts[2])
+                .tags(tags)
                 .build();
     }
 }
