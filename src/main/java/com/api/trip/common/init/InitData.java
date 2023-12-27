@@ -7,6 +7,7 @@ import com.api.trip.common.naverapi.dto.ShoppingRequest;
 import com.api.trip.common.naverapi.dto.ShoppingResponse;
 import com.api.trip.domain.item.controller.dto.CreateItemRequest;
 import com.api.trip.domain.item.service.ItemService;
+import com.api.trip.domain.tag.service.TagService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -21,15 +22,15 @@ public class InitData implements ApplicationRunner {
     private final NaverClient naverClient;
     private final NaverApiService naverApiService;
     private final ItemService itemService;
+    private final TagService tagService;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
 
 
-/*
 
 
-        for(int i = 0; i < 2; i++) {
+        for(int i = 0; i < 1; i++) {
 
             ShoppingRequest request = ShoppingRequest.builder()
                     .start(1 + i * 100)
@@ -45,6 +46,6 @@ public class InitData implements ApplicationRunner {
 
 
         }
-*/
+
     }
 }
