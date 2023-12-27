@@ -40,8 +40,7 @@ public class InterestTagService {
     }
 
     @Transactional(readOnly = true)
-    public List<String> getInterestTag() {
-        // TODO: 회원의 관심 태그 출력하는 로직 작성
-        return List.of();
+    public List<String> getInterestTag(Member member) {
+        return interestTagRepository.findInterestTags(member);
     }
 }
