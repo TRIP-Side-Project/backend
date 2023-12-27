@@ -6,6 +6,10 @@ import com.api.trip.domain.comment.model.Comment;
 import com.api.trip.domain.comment.repository.CommentRepository;
 import com.api.trip.domain.interestarticle.model.InterestArticle;
 import com.api.trip.domain.interestarticle.repository.InterestArticleRepository;
+import com.api.trip.domain.interestitem.model.InterestItem;
+import com.api.trip.domain.interestitem.repository.InterestItemRepository;
+import com.api.trip.domain.item.model.Item;
+import com.api.trip.domain.item.repository.ItemRepository;
 import com.api.trip.domain.member.model.Member;
 import com.api.trip.domain.member.model.SocialCode;
 import com.api.trip.domain.member.repository.MemberRepository;
@@ -26,7 +30,8 @@ public class DevInitData {
     private final PasswordEncoder passwordEncoder;
     private final ArticleRepository articleRepository;
     private final CommentRepository commentRepository;
-    private final InterestArticleRepository interestArticleRepository;
+    private final ItemRepository itemRepository;
+    private final InterestItemRepository interestItemRepository;
 
     @Value("${cloud.aws.default-image}")
     private String defaultProfileImg;
@@ -46,9 +51,13 @@ public class DevInitData {
             Comment comment3 = commentRepository.save(createComment(article1, member1, "댓글3", null));
             commentRepository.save(createComment(article1, member1, "댓글4", comment3));
 
-            interestArticleRepository.save(createInterestArticle(member1, article1));
-            interestArticleRepository.save(createInterestArticle(member1, article2));
-            interestArticleRepository.save(createInterestArticle(member1, article3));
+            // 2번 회원이 상품 2개 추가
+            Item item1 = itemRepository.save(createItem(1L, "서울/경기도 투어", member2));
+            Item item2 = itemRepository.save(createItem(2L, "부산 해산물 투어", member2));
+
+            // 1번 회원이 상품 2개 좋아요
+            interestItemRepository.save(createInterestItem(item1, member1));
+            interestItemRepository.save(createInterestItem(item2, member1));
         };
     }
 
@@ -79,10 +88,23 @@ public class DevInitData {
                 .build();
     }
 
-    private InterestArticle createInterestArticle(Member member, Article article) {
-        return InterestArticle.builder()
+    private Item createItem(Long productId, String title, Member member) {
+        return Item.builder()
+                .productId(productId)
+                .title(title)
+                .shopName("trip")
+                .buyUrl("buyUrl")
+                .maxPrice(10000)
+                .minPrice(100)
+                .imageUrl("imageUrl")
+                .writer(member)
+                .build();
+    }
+
+    private InterestItem createInterestItem(Item item, Member member) {
+        return InterestItem.builder()
+                .item(item)
                 .member(member)
-                .article(article)
                 .build();
     }
 }
