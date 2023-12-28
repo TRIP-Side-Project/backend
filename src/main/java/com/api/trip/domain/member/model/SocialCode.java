@@ -7,7 +7,11 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum SocialCode {
 
-    SOCIAL("SOCIAL_LOGIN"), NORMAL("NORMAL_LOGIN"),;
+    KAKAO("kakao"),
+    NAVER("naver"),
+    GOOGLE("google"),
+    NORMAL("normal"),
+    ;
 
     private final String type;
 }

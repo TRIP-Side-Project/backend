@@ -40,27 +40,41 @@ public class Member extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     private SocialCode socialCode;
 
+    private String socialAccessToken; // 소셜 로그인 시 발급되는 accessToken
+
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private MemberRole role;
 
     @Builder
-    private Member(String email, String password, String nickname, String profileImg, SocialCode socialCode){
+    private Member(String email, String password, String nickname, String profileImg, SocialCode socialCode, String socialAccessToken){
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.profileImg = profileImg;
         this.socialCode = socialCode;
+        this.socialAccessToken = socialAccessToken;
         this.role = MemberRole.MEMBER;
     }
 
-    public static Member of(String email, String password, String nickname, String profileImg, SocialCode socialCode) {
+    public static Member of(String email, String password, String nickname, String profileImg) {
+        return Member.builder()
+                .email(email)
+                .password(password)
+                .nickname(nickname)
+                .profileImg(profileImg)
+                .socialCode(SocialCode.NORMAL)
+                .build();
+    }
+
+    public static Member of(String email, String password, String nickname, String profileImg, SocialCode socialCode, String socialAccessToken) {
         return Member.builder()
                 .email(email)
                 .password(password)
                 .nickname(nickname)
                 .profileImg(profileImg)
                 .socialCode(socialCode)
+                .socialAccessToken(socialAccessToken)
                 .build();
     }
 
