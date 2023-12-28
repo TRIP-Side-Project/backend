@@ -27,9 +27,9 @@ public class ItemController {
         return ResponseEntity.ok(itemService.createItemByDirect(itemRequest));
     }
 
-    @GetMapping("/{ItemId}")
-    public ResponseEntity<GetItemResponse> getItem(@PathVariable Long ItemId) {
-        return ResponseEntity.ok(itemService.getItemDetail(ItemId));
+    @GetMapping("/{itemId}")
+    public ResponseEntity<GetItemResponse> getItem(@PathVariable(name = "itemId") Long itemId) {
+        return ResponseEntity.ok(itemService.getItemDetail(itemId));
     }
 
     @GetMapping
