@@ -2,6 +2,8 @@ package com.api.trip.domain.notification.service;
 
 import com.api.trip.common.exception.CustomException;
 import com.api.trip.common.exception.ErrorCode;
+import com.api.trip.domain.interesttag.service.InterestTagService;
+import com.api.trip.domain.item.model.Item;
 import com.api.trip.domain.itemtag.model.ItemTag;
 import com.api.trip.domain.member.model.Member;
 import com.api.trip.domain.member.repository.MemberRepository;
@@ -21,6 +23,20 @@ public class NotificationService {
 
     private final MemberRepository memberRepository;
     private final NotificationRepository notificationRepository;
+    private final InterestTagService interestTagService;
+
+    public void createNotification(Item item, List<String> tagNames){
+
+        List<Member> receivers = interestTagService.getMemberByTags(tagNames);
+
+        receivers.stream().forEach(member -> {
+            notificationRepository.save(Notification.builder()
+                    .item(item)
+                    .member(member).build());
+        });
+
+
+    }
 
     @Transactional(readOnly = true)
     public GetMyNotificationsResponse getMyNotifications(String email) {

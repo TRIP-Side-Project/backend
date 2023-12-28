@@ -1,7 +1,9 @@
 package com.api.trip.domain.interesttag.respository;
 
+import com.api.trip.domain.interesttag.model.InterestTag;
 import com.api.trip.domain.interesttag.model.QInterestTag;
 import com.api.trip.domain.member.model.Member;
+import com.api.trip.domain.tag.model.QTag;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 
@@ -23,6 +25,16 @@ public class InterestTagRepositoryCustomImpl implements InterestTagRepositoryCus
                 .from(interestTag)
                 .where(interestTag.member.eq(member))
                 .fetch();
+    }
+
+    @Override
+    public List<InterestTag> findInterestTagsByTagNames(List<String> tagNames) {
+        return jpaQueryFactory.select(interestTag)
+                .from(interestTag)
+                .innerJoin(interestTag.tag, QTag.tag).fetchJoin()
+                .where(interestTag.tag.name.in(tagNames))
+                .fetch();
+
     }
 
 }
