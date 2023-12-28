@@ -18,11 +18,9 @@ public class GetItemResponse {
 
     private String buyUrl;
 
-    private long maxPrice;
+    private Integer maxPrice;
 
-    private long minPrice;
-
-    private String writerNickname;
+    private Integer minPrice;
 
     public static GetItemResponse of(Item item){
         return GetItemResponse.builder()
@@ -33,7 +31,6 @@ public class GetItemResponse {
                 .buyUrl(item.getBuyUrl())
                 .maxPrice(item.getMaxPrice())
                 .minPrice(item.getMinPrice())
-                .writerNickname(item.getWriter().getNickname())
                 .build();
 
     }

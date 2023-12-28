@@ -32,7 +32,7 @@ public class ItemRepositoryCustomImpl implements ItemRepositoryCustom{
     public Page<Item> findItems(Pageable pageable, int sortCode, String search) {
 
         List<Item> result = jpaQueryFactory.selectFrom(item)
-                .join(item.writer).fetchJoin()
+                //.join(item.writer).fetchJoin()
                 .where(
                         eqToSearchText(search),
                         item.isDeleted.eq(false)
