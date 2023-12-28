@@ -2,9 +2,11 @@ package com.api.trip.domain.notification.controller;
 
 import com.api.trip.common.exception.CustomException;
 import com.api.trip.common.exception.ErrorCode;
-import com.api.trip.domain.member.repository.MemberRepository;
-import com.api.trip.domain.notification.controller.dto.GetMyNotificationsResponse;
 import com.api.trip.common.sse.emitter.SseEmitterMap;
+import com.api.trip.domain.member.repository.MemberRepository;
+import com.api.trip.domain.notification.controller.dto.DeleteNotificationRequest;
+import com.api.trip.domain.notification.controller.dto.GetMyNotificationsResponse;
+import com.api.trip.domain.notification.controller.dto.ReadNotificationRequest;
 import com.api.trip.domain.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -37,29 +39,23 @@ public class NotificationController {
         return ResponseEntity.ok(sseEmitter);
     }
 
-    @GetMapping("/send-to-all")
-    public void sendToAll(@RequestParam String message) {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        sseEmitterMap.sendToAll("send-to-all", email + ": " + message);
-    }
-
     @GetMapping("/me")
     public ResponseEntity<GetMyNotificationsResponse> getMyNotifications() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         return ResponseEntity.ok(notificationService.getMyNotifications(email));
     }
 
-    @PatchMapping("/{notificationId}")
-    public ResponseEntity<Void> readNotification(@PathVariable Long notificationId) {
+    @PatchMapping
+    public ResponseEntity<Void> readNotification(@RequestBody ReadNotificationRequest request) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        notificationService.readNotification(notificationId, email);
+        notificationService.readNotification(request, email);
         return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/{notificationId}")
-    public ResponseEntity<Void> deleteNotification(@PathVariable Long notificationId) {
+    @DeleteMapping
+    public ResponseEntity<Void> deleteNotification(@RequestBody DeleteNotificationRequest request) {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        notificationService.deleteNotification(notificationId, email);
+        notificationService.deleteNotification(request, email);
         return ResponseEntity.ok().build();
     }
 

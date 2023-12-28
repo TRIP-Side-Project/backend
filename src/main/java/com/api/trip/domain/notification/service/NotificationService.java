@@ -7,7 +7,9 @@ import com.api.trip.domain.item.model.Item;
 import com.api.trip.domain.itemtag.model.ItemTag;
 import com.api.trip.domain.member.model.Member;
 import com.api.trip.domain.member.repository.MemberRepository;
+import com.api.trip.domain.notification.controller.dto.DeleteNotificationRequest;
 import com.api.trip.domain.notification.controller.dto.GetMyNotificationsResponse;
+import com.api.trip.domain.notification.controller.dto.ReadNotificationRequest;
 import com.api.trip.domain.notification.domain.Notification;
 import com.api.trip.domain.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,17 +27,17 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final InterestTagService interestTagService;
 
-    public void createNotification(Item item, List<String> tagNames){
-
+    public void createNotification(Item item, List<String> tagNames) {
         List<Member> receivers = interestTagService.getMemberByTags(tagNames);
 
-        receivers.stream().forEach(member -> {
-            notificationRepository.save(Notification.builder()
-                    .item(item)
-                    .member(member).build());
+        receivers.forEach(member -> {
+            notificationRepository.save(
+                    Notification.builder()
+                            .item(item)
+                            .member(member)
+                            .build()
+            );
         });
-
-
     }
 
     @Transactional(readOnly = true)
@@ -54,30 +56,22 @@ public class NotificationService {
         return GetMyNotificationsResponse.of(notifications, itemTags);
     }
 
-    public void readNotification(Long notificationId, String email) {
+    public void readNotification(ReadNotificationRequest request, String email) {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
 
-        Notification notification = notificationRepository.findById(notificationId)
+        Notification notification = notificationRepository.findByMemberIdAndItemId(member.getId(), request.getItemId())
                 .orElseThrow(() -> new CustomException(ErrorCode.NOTIFICATION_NOT_FOUND));
-
-        if (notification.getMember() == member) {
-            throw new CustomException(ErrorCode.FORBIDDEN);
-        }
 
         notification.read();
     }
 
-    public void deleteNotification(Long notificationId, String email) {
+    public void deleteNotification(DeleteNotificationRequest request, String email) {
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
 
-        Notification notification = notificationRepository.findById(notificationId)
+        Notification notification = notificationRepository.findByMemberIdAndItemId(member.getId(), request.getItemId())
                 .orElseThrow(() -> new CustomException(ErrorCode.NOTIFICATION_NOT_FOUND));
-
-        if (notification.getMember() == member) {
-            throw new CustomException(ErrorCode.FORBIDDEN);
-        }
 
         notificationRepository.delete(notification);
     }
