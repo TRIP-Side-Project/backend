@@ -1,6 +1,7 @@
 package com.api.trip.domain.interestarticle.controller;
 
 import com.api.trip.domain.interestarticle.controller.dto.CreateInterestArticleRequest;
+import com.api.trip.domain.interestarticle.controller.dto.GetMyInterestArticlesResponse;
 import com.api.trip.domain.interestarticle.service.InterestArticleService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,5 +27,11 @@ public class InterestArticleController {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
         interestArticleService.deleteInterestArticle(interestArticleId, email);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<GetMyInterestArticlesResponse> getMyInterestArticles() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(interestArticleService.getMyInterestArticles(email));
     }
 }

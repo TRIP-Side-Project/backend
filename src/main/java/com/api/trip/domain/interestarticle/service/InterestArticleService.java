@@ -5,6 +5,7 @@ import com.api.trip.common.exception.ErrorCode;
 import com.api.trip.domain.article.model.Article;
 import com.api.trip.domain.article.repository.ArticleRepository;
 import com.api.trip.domain.interestarticle.controller.dto.CreateInterestArticleRequest;
+import com.api.trip.domain.interestarticle.controller.dto.GetMyInterestArticlesResponse;
 import com.api.trip.domain.interestarticle.model.InterestArticle;
 import com.api.trip.domain.interestarticle.repository.InterestArticleRepository;
 import com.api.trip.domain.member.model.Member;
@@ -12,6 +13,8 @@ import com.api.trip.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -59,5 +62,21 @@ public class InterestArticleService {
         articleRepository.decreaseLikeCount(interestArticle.getArticle());
 
         interestArticleRepository.delete(interestArticle);
+    }
+
+    public GetMyInterestArticlesResponse getMyInterestArticles(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
+
+        List<InterestArticle> interestArticles = interestArticleRepository.findAllByMember(member);
+
+        List<Article> articles = articleRepository.findAllById(
+                interestArticles
+                        .stream()
+                        .map(interestArticle -> interestArticle.getArticle().getId())
+                        .toList()
+        );
+
+        return GetMyInterestArticlesResponse.of(articles);
     }
 }
