@@ -55,7 +55,7 @@ public class ItemService {
         return itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_ITEM));
     }
 
-    @Transactional(readOnly = true)
+    //@Transactional(readOnly = true)
     public GetItemResponse getItemDetail(Long itemId) {
         Item item = itemRepository.findById(itemId).orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_ITEM));
 
