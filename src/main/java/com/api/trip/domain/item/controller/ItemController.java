@@ -35,9 +35,9 @@ public class ItemController {
     @GetMapping
     public ResponseEntity<GetItemsResponse> getItems(
             @PageableDefault(size = 8) Pageable pageable,
-            @RequestParam int sortCode,
-            @RequestParam String title,
-            @RequestParam String tagName
+            @RequestParam(value = "sortCode", defaultValue = "0") int sortCode,
+            @RequestParam(value = "title", required = false) String title,
+            @RequestParam(value = "tag", required = false) String tagName
     ) {
         GetItemsResponse itemsDetail;
 
