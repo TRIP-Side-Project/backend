@@ -22,6 +22,8 @@ public class GetItemResponse {
 
     private Integer minPrice;
 
+    private String imageUrl;
+
     public static GetItemResponse of(Item item){
         return GetItemResponse.builder()
                 .id(item.getId())
@@ -31,6 +33,7 @@ public class GetItemResponse {
                 .buyUrl(item.getBuyUrl())
                 .maxPrice(item.getMaxPrice())
                 .minPrice(item.getMinPrice())
+                .imageUrl(item.getImageUrl())
                 .build();
 
     }
