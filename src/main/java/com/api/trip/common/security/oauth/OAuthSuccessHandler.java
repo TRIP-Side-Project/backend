@@ -17,6 +17,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -58,12 +59,16 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         // OAuth2User 객체에서 권한 가져옴
         JwtToken jwtToken = jwtTokenProvider.createJwtToken(member.getEmail(), member.getRole().getValue());
 
-        response.addHeader(HttpHeaders.SET_COOKIE, createCookie("accessToken", jwtToken.getAccessToken()));
-        response.addHeader(HttpHeaders.SET_COOKIE, createCookie("refreshToken", jwtToken.getRefreshToken()));
-        response.addHeader(HttpHeaders.SET_COOKIE, createCookie("memberId", String.valueOf(member.getId())));
-        response.addHeader(HttpHeaders.SET_COOKIE, createCookie("profileImgUrl", member.getProfileImg()));
-        
-        response.sendRedirect("https://dkoqktaeu3tic.cloudfront.net/home");
+        String targetUrl = UriComponentsBuilder.fromUriString("https://dkoqktaeu3tic.cloudfront.net/home")
+                .queryParam("accessToken", jwtToken.getAccessToken())
+                .queryParam("refreshToken", jwtToken.getRefreshToken())
+                .queryParam("memberId", String.valueOf(member.getId()))
+                .queryParam("profileImgUrl", member.getProfileImg())
+                .build().toUriString();
+
+        getRedirectStrategy().sendRedirect(request, response, targetUrl);
+
+
     }
 
     private static String createCookie(String name, String value) {
