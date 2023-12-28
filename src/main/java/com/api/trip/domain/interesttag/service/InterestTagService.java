@@ -43,4 +43,10 @@ public class InterestTagService {
     public List<String> getInterestTag(Member member) {
         return interestTagRepository.findInterestTags(member);
     }
+
+    @Transactional(readOnly = true)
+    public List<Member> getMemberByTags(List<String> tagNames){
+        List<InterestTag> interestTags = interestTagRepository.findInterestTagsByTagNames(tagNames);
+        return interestTags.stream().map(InterestTag::getMember).toList();
+    }
 }
