@@ -2,6 +2,7 @@ package com.api.trip.domain.email.service;
 
 import com.api.trip.common.exception.ErrorCode;
 import com.api.trip.common.exception.custom_exception.BadRequestException;
+import com.api.trip.common.exception.custom_exception.DuplicateException;
 import com.api.trip.common.exception.custom_exception.NotFoundException;
 import com.api.trip.domain.email.model.EmailAuth;
 import com.api.trip.domain.email.repository.EmailAuthRepository;
@@ -38,18 +39,22 @@ public class EmailService {
     private final MemberRepository memberRepository;
     private final SpringTemplateEngine templateEngine;
 
+    @Value("${spring.mail.link}")
+    private String host;
+
     @Async
     public void send(String email, String authToken) {
 
-        if (memberRepository.findByEmail(email).isPresent()) {
-            throw new RuntimeException("이메일 인증이 완료된 회원입니다!");
-        }
+        // TODO: 비동기 메서드 예외 핸들러 추가
+        memberRepository.findByEmail(email).ifPresent(it -> {
+            throw new DuplicateException(ErrorCode.ALREADY_JOINED);
+        });
 
         MimeMessage message = javaMailSender.createMimeMessage();
 
         try {
             Context context = new Context();
-            context.setVariable("auth_url", "https://triptrip.site/api/members/auth-email/%s/%s".formatted(email, authToken));
+            context.setVariable("auth_url", "%s/%s/%s".formatted(host, email, authToken));
 
             String html = templateEngine.process("email_auth_mail", context);
 

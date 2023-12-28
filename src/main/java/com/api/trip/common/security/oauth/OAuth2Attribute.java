@@ -2,6 +2,7 @@ package com.api.trip.common.security.oauth;
 
 import com.api.trip.common.exception.ErrorCode;
 import com.api.trip.common.exception.custom_exception.NotFoundException;
+import com.api.trip.domain.member.model.SocialCode;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,18 +23,20 @@ public class OAuth2Attribute {
     private String name; // 이름
     private String picture; // 프로필 사진
     private String provider; // 플랫폼
+    private SocialCode socialCode;
+    private String accessToken; // 소셜 accessToken
 
-    static OAuth2Attribute of(String provider, String attributeKey, Map<String, Object> attributes) {
+    static OAuth2Attribute of(String provider, String accessToken, String attributeKey, Map<String, Object> attributes) {
         // 각 플랫폼 별로 제공해주는 데이터가 조금씩 다르기 때문에 분기 처리함.
         return switch (provider) {
-            case "google" -> google(provider, attributeKey, attributes);
-            case "kakao" -> kakao(provider, attributeKey, attributes);
-            case "naver" -> naver(provider, attributeKey, attributes);
+            case "google" -> google(provider, accessToken, attributeKey, attributes);
+            case "kakao" -> kakao(provider, accessToken, attributeKey, attributes);
+            case "naver" -> naver(provider, accessToken, attributeKey, attributes);
             default -> throw new NotFoundException(ErrorCode.NOT_FOUND_PROVIDER);
         };
     }
 
-    private static OAuth2Attribute google(String provider, String attributeKey, Map<String, Object> attributes) {
+    private static OAuth2Attribute google(String provider, String accessToken, String attributeKey, Map<String, Object> attributes) {
         log.debug("google: {}", attributes);
         return OAuth2Attribute.builder()
                 .email((String) attributes.get("email"))
@@ -42,10 +45,12 @@ public class OAuth2Attribute {
                 .attributes(attributes)
                 .attributeKey(attributeKey)
                 .provider(provider)
+                .socialCode(SocialCode.GOOGLE)
+                .accessToken(accessToken)
                 .build();
     }
 
-    private static OAuth2Attribute kakao(String provider, String attributeKey, Map<String, Object> attributes) {
+    private static OAuth2Attribute kakao(String provider, String accessToken, String attributeKey, Map<String, Object> attributes) {
         Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
         Map<String, Object> kakaoProfile = (Map<String, Object>) kakaoAccount.get("profile");
 
@@ -56,10 +61,12 @@ public class OAuth2Attribute {
                 .attributes(kakaoAccount)
                 .attributeKey(attributeKey)
                 .provider(provider)
+                .socialCode(SocialCode.KAKAO)
+                .accessToken(accessToken)
                 .build();
     }
 
-    private static OAuth2Attribute naver(String provider, String attributeKey, Map<String, Object> attributes) {
+    private static OAuth2Attribute naver(String provider, String accessToken, String attributeKey, Map<String, Object> attributes) {
         Map<String, Object> response = (Map<String, Object>) attributes.get("response");
 
         return OAuth2Attribute.builder()
@@ -69,6 +76,8 @@ public class OAuth2Attribute {
                 .attributes(response)
                 .attributeKey(attributeKey)
                 .provider(provider)
+                .socialCode(SocialCode.NAVER)
+                .accessToken(accessToken)
                 .build();
     }
 
@@ -82,6 +91,8 @@ public class OAuth2Attribute {
         map.put("name", name);
         map.put("picture", picture);
         map.put("provider", provider);
+        map.put("accessToken", accessToken);
+        map.put("socialCode", socialCode);
 
         return map;
     }

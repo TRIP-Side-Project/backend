@@ -13,6 +13,8 @@ public interface ArticleRepository extends JpaRepository<Article, Long>, Article
 
     List<Article> findAllByWriterOrderByIdDesc(Member writer);
 
+    Long countByWriter_Id(Long memberId);
+
     @Modifying
     @Query("UPDATE Article a SET a.viewCount = a.viewCount + 1 WHERE a = :article")
     void increaseViewCount(@Param("article") Article article);

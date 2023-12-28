@@ -4,11 +4,9 @@ import com.api.trip.common.exception.ErrorCode;
 import com.api.trip.common.exception.custom_exception.NotFoundException;
 import com.api.trip.common.security.jwt.JwtToken;
 import com.api.trip.common.security.jwt.JwtTokenProvider;
-import com.api.trip.domain.member.controller.dto.LoginResponse;
 import com.api.trip.domain.member.model.Member;
-import com.api.trip.domain.member.model.MemberRole;
+import com.api.trip.domain.member.model.SocialCode;
 import com.api.trip.domain.member.repository.MemberRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,15 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 @Slf4j
@@ -34,7 +28,6 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     private final MemberRepository memberRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final ObjectMapper objectMapper;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException {
@@ -53,8 +46,10 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
             // KAKAO_user123
             String name = provider + "_" + oAuth2User.getAttribute("name");
             String picture = oAuth2User.getAttribute("picture");
+            SocialCode socialCode = oAuth2User.getAttribute("socialCode");
+            String socialAccessToken = oAuth2User.getAttribute("accessToken");
 
-            member = Member.of(email, "", name, picture);
+            member = Member.of(email, "", name, picture, socialCode, socialAccessToken);
             memberRepository.save(member);
         } else {
             member = findMember.orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_MEMBER));
@@ -66,19 +61,18 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         response.addHeader(HttpHeaders.SET_COOKIE, createCookie("accessToken", jwtToken.getAccessToken()));
         response.addHeader(HttpHeaders.SET_COOKIE, createCookie("refreshToken", jwtToken.getRefreshToken()));
         response.addHeader(HttpHeaders.SET_COOKIE, createCookie("memberId", String.valueOf(member.getId())));
-
-        // TODO: 프론트 배포 주소로 변경 예정
-        response.sendRedirect("http://localhost:5173/home");
+        response.addHeader(HttpHeaders.SET_COOKIE, createCookie("profileImgUrl", member.getProfileImg()));
+        
+        response.sendRedirect("https://dkoqktaeu3tic.cloudfront.net/home");
     }
 
     private static String createCookie(String name, String value) {
         return ResponseCookie.from(name, value)
-                .domain("localhost")
                 .path("/")
                 .httpOnly(true)
+                .sameSite("None")
+                .secure(true)
                 .maxAge(60 * 60 * 6)
-                // .sameSite("None") https 시 활성화
-                //.secure(true) https 시 활성화
                 .build()
                 .toString();
     }

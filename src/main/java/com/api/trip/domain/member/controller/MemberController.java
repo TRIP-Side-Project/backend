@@ -8,6 +8,8 @@ import com.api.trip.domain.email.service.EmailService;
 import com.api.trip.domain.member.controller.dto.*;
 import com.api.trip.domain.member.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.tags.Tags;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.List;
 
+@Tag(name = "members", description = "회원 API")
 @RestController
 @RequestMapping("/api/members")
 @RequiredArgsConstructor
@@ -42,6 +45,13 @@ public class MemberController {
         LoginResponse loginResponse = memberService.login(loginRequest);
         return ResponseEntity.ok().body(loginResponse);
     }
+
+    @GetMapping("/me")
+    public ResponseEntity<MyPageResponse> myPage() {
+        MyPageResponse myPageResponse = memberService.myPage();
+        return ResponseEntity.ok().body(myPageResponse);
+    }
+
 
     // 인증 메일 전송
     @PostMapping("/send-email/{email}")
@@ -87,6 +97,13 @@ public class MemberController {
     @DeleteMapping("/me")
     public ResponseEntity<Void> deleteMember(@RequestBody DeleteRequest deleteRequest) {
         memberService.deleteMember(deleteRequest);
+        return ResponseEntity.ok().build();
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/social/me")
+    public ResponseEntity<Void> deleteSocialMember() {
+        memberService.deleteSocialMember();
         return ResponseEntity.ok().build();
     }
 
