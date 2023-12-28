@@ -7,39 +7,38 @@ import com.api.trip.common.exception.custom_exception.NotFoundException;
 import com.api.trip.common.exception.custom_exception.NotMatchException;
 import com.api.trip.common.security.jwt.JwtToken;
 import com.api.trip.common.security.jwt.JwtTokenProvider;
+import com.api.trip.common.security.oauth.OAuth2Revoke;
 import com.api.trip.common.security.util.JwtTokenUtils;
 import com.api.trip.common.security.util.SecurityUtils;
 import com.api.trip.domain.article.repository.ArticleRepository;
 import com.api.trip.domain.aws.util.MultipartFileUtils;
 import com.api.trip.domain.aws.service.AmazonS3Service;
 import com.api.trip.domain.comment.repository.CommentRepository;
-import com.api.trip.domain.email.model.EmailAuth;
 import com.api.trip.domain.email.repository.EmailAuthRepository;
-import com.api.trip.domain.interestarticle.repository.InterestArticleRepository;
-import com.api.trip.domain.interestitem.model.InterestItem;
 import com.api.trip.domain.interestitem.repository.InterestItemRepository;
-import com.api.trip.domain.interesttag.respository.InterestTagRepository;
 import com.api.trip.domain.interesttag.service.InterestTagService;
 import com.api.trip.domain.member.controller.dto.*;
 import com.api.trip.domain.member.model.Member;
 import com.api.trip.domain.member.model.SocialCode;
 import com.api.trip.domain.member.repository.MemberRepository;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
-import java.io.InvalidClassException;
-import java.util.ArrayList;
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -58,6 +57,7 @@ public class MemberService {
     private final CommentRepository commentRepository;
     private final InterestItemRepository interestItemRepository;
 
+    private final OAuth2Revoke oAuth2Revoke;
     private final AmazonS3Service amazonS3Service;
     private final InterestTagService interestTagService;
 
@@ -103,8 +103,7 @@ public class MemberService {
                 joinRequest.getEmail(),
                 passwordEncoder.encode(joinRequest.getPassword()),
                 joinRequest.getNickname(),
-                profileImgUrl,
-                SocialCode.NORMAL
+                profileImgUrl
         );
 
         memberRepository.save(member);
@@ -187,12 +186,30 @@ public class MemberService {
 
 
 
-    // 회원 탈퇴
+    // 일반 회원 탈퇴
     public void deleteMember(DeleteRequest deleteRequest) {
         Member member = getAuthenticationMember();
 
         if (!passwordEncoder.matches(deleteRequest.getPassword(), member.getPassword())) {
             throw new NotMatchException(ErrorCode.INVALID_CURRENT_PASSWORD);
+        }
+
+        memberRepository.deleteById(member.getId());
+    }
+
+    // 소셜 회원 삭제
+    public void deleteSocialMember() {
+        Member member = getAuthenticationMember();
+
+        SocialCode socialCode = member.getSocialCode();
+        String socialAccessToken = member.getSocialAccessToken();
+
+        log.debug("socialCode: {}", socialCode);
+        // 각 플랫폼 별로 연결 끊기
+        switch (socialCode) {
+            case KAKAO -> oAuth2Revoke.revokeKakao(socialAccessToken);
+            case NAVER -> oAuth2Revoke.revokeNaver(socialAccessToken);
+            case GOOGLE ->  oAuth2Revoke.revokeGoogle(socialAccessToken);
         }
 
         memberRepository.deleteById(member.getId());

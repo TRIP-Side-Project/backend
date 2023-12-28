@@ -101,6 +101,13 @@ public class MemberController {
     }
 
     @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/social/me")
+    public ResponseEntity<Void> deleteSocialMember() {
+        memberService.deleteSocialMember();
+        return ResponseEntity.ok().build();
+    }
+
+    @PreAuthorize("isAuthenticated()")
     @Operation(summary = "로그아웃")
     @PostMapping("/logout")
     public ResponseEntity<String> logoutMember() {
