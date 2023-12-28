@@ -46,8 +46,10 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
             // KAKAO_user123
             String name = provider + "_" + oAuth2User.getAttribute("name");
             String picture = oAuth2User.getAttribute("picture");
+            SocialCode socialCode = oAuth2User.getAttribute("socialCode");
+            String socialAccessToken = oAuth2User.getAttribute("accessToken");
 
-            member = Member.of(email, "", name, picture, SocialCode.SOCIAL);
+            member = Member.of(email, "", name, picture, socialCode, socialAccessToken);
             memberRepository.save(member);
         } else {
             member = findMember.orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_MEMBER));
@@ -59,18 +61,18 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         response.addHeader(HttpHeaders.SET_COOKIE, createCookie("accessToken", jwtToken.getAccessToken()));
         response.addHeader(HttpHeaders.SET_COOKIE, createCookie("refreshToken", jwtToken.getRefreshToken()));
         response.addHeader(HttpHeaders.SET_COOKIE, createCookie("memberId", String.valueOf(member.getId())));
-
-        // TODO: 프론트 배포 주소로 변경 예정
-        response.sendRedirect("http://localhost:5173/home");
+        response.addHeader(HttpHeaders.SET_COOKIE, createCookie("profileImgUrl", member.getProfileImg()));
+        
+        response.sendRedirect("https://dkoqktaeu3tic.cloudfront.net/home");
     }
 
     private static String createCookie(String name, String value) {
         return ResponseCookie.from(name, value)
                 .path("/")
                 .httpOnly(true)
+                .sameSite("None")
+                .secure(true)
                 .maxAge(60 * 60 * 6)
-                // .sameSite("None") https 시 활성화
-                //.secure(true) https 시 활성화
                 .build()
                 .toString();
     }
