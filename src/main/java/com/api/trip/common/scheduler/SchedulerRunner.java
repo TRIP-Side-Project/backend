@@ -1,4 +1,4 @@
-package com.api.trip.common;
+package com.api.trip.common.scheduler;
 
 
 import com.api.trip.common.naverapi.NaverApiService;
@@ -13,18 +13,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.List;
-import java.util.Set;
 
 @RequiredArgsConstructor
 @Component
 @EnableScheduling
 @Slf4j
-public class schedulerRunner {
+public class SchedulerRunner {
 
     private final NaverClient naverClient;
     private final NaverApiService naverApiService;
@@ -44,7 +42,6 @@ public class schedulerRunner {
         try {
 
             while(true){
-                System.out.println("==========================");
                 ShoppingRequest request = ShoppingRequest.builder()
                         .start(1 + i * 50)
                         .display(50).build();

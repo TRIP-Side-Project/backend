@@ -28,17 +28,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class InitData {
 
-    private final MemberRepository memberRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final ArticleRepository articleRepository;
-    private final CommentRepository commentRepository;
-    private final ItemRepository itemRepository;
-    private final InterestItemRepository interestItemRepository;
-    private final TagRepository tagRepository;
-    private final InterestTagRepository interestTagRepository;
 
-    @Value("${cloud.aws.default-image}")
-    private String defaultProfileImg;
+    private final TagRepository tagRepository;
 
     @Bean
     public CommandLineRunner init() {
