@@ -42,11 +42,11 @@ public class ItemService {
 
         return itemRepository.save(item).getId();
     }
-    public Long createItem(CreateItemRequest itemRequest){
+    public Item createItem(CreateItemRequest itemRequest){
         Item item = itemRequest.toEntity();
         itemTagService.createItemTag(item, itemRequest.getTagNames());
+        return itemRepository.save(item);
 
-        return itemRepository.save(item).getId();
     }
 
 

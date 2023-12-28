@@ -1,4 +1,4 @@
-package com.api.trip.domain.notification.emitter;
+package com.api.trip.common.sse.emitter;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

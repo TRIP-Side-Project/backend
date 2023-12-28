@@ -4,7 +4,7 @@ import com.api.trip.common.exception.CustomException;
 import com.api.trip.common.exception.ErrorCode;
 import com.api.trip.domain.member.repository.MemberRepository;
 import com.api.trip.domain.notification.controller.dto.GetMyNotificationsResponse;
-import com.api.trip.domain.notification.emitter.SseEmitterMap;
+import com.api.trip.common.sse.emitter.SseEmitterMap;
 import com.api.trip.domain.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -31,7 +31,7 @@ public class NotificationController {
                 .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED))
                 .getId();
 
-        SseEmitter sseEmitter = new SseEmitter();
+        SseEmitter sseEmitter = new SseEmitter(3600000L);
         sseEmitterMap.put(memberId, sseEmitter);
         sseEmitterMap.send(memberId, "connect", LocalDateTime.now());
         return ResponseEntity.ok(sseEmitter);
