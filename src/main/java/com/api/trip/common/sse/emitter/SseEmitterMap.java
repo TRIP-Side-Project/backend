@@ -15,22 +15,22 @@ import static org.springframework.web.servlet.mvc.method.annotation.SseEmitter.e
 @Slf4j
 public class SseEmitterMap {
 
-    private final Map<Long, SseEmitter> sseEmitterMap = new ConcurrentHashMap<>();
+    private final Map<String, SseEmitter> sseEmitterMap = new ConcurrentHashMap<>();
 
-    public void put(Long memberId, SseEmitter sseEmitter) {
-        sseEmitter.onCompletion(() -> remove(memberId));
+    public void put(String email, SseEmitter sseEmitter) {
+        sseEmitter.onCompletion(() -> remove(email));
         sseEmitter.onTimeout(sseEmitter::complete);
-        sseEmitterMap.put(memberId, sseEmitter);
-        log.info("connected with {}, the number of connections is {}", memberId, sseEmitterMap.size());
+        sseEmitterMap.put(email, sseEmitter);
+        log.info("connected with {}, the number of connections is {}", email, sseEmitterMap.size());
     }
 
-    public void remove(Long memberId) {
-        sseEmitterMap.remove(memberId);
-        log.info("disconnected with {}, the number of connections is {}", memberId, sseEmitterMap.size());
+    public void remove(String email) {
+        sseEmitterMap.remove(email);
+        log.info("disconnected with {}, the number of connections is {}", email, sseEmitterMap.size());
     }
 
-    public void send(Long memberId, String eventName, Object eventData) {
-        SseEmitter sseEmitter = sseEmitterMap.get(memberId);
+    public void send(String email, String eventName, Object eventData) {
+        SseEmitter sseEmitter = sseEmitterMap.get(email);
         try {
             sseEmitter.send(
                     event()
@@ -38,17 +38,17 @@ public class SseEmitterMap {
                             .data(eventData)
             );
         } catch (IOException | IllegalStateException e) {
-            remove(memberId);
+            remove(email);
         }
     }
 
     public void sendToAll(String eventName, Object eventData) {
         SseEventBuilder sseEventBuilder = event().name(eventName).data(eventData);
-        sseEmitterMap.forEach((memberId, sseEmitter) -> {
+        sseEmitterMap.forEach((email, sseEmitter) -> {
             try {
                 sseEmitter.send(sseEventBuilder);
             } catch (IOException | IllegalStateException e) {
-                remove(memberId);
+                remove(email);
             }
         });
     }
