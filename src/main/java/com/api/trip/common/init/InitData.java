@@ -43,7 +43,8 @@ public class InitData {
 
 
     private void createTag() {
-        String[] tags = {"부산", "제주", "서울", "요트", "경주", "눈꽃여행", "기차"};
+        String[] tags = {"부산", "제주", "서울", "강원", "경남", "춘천", "목포", "여수", "안동", "경주", "대구", "대전", "전주"
+        ,"눈꽃", "스키", "보드", "바다", "요트", "해양스포츠", "단풍", "골프"};
 
         for (String name : tags) {
             Tag tag = Tag.builder()
