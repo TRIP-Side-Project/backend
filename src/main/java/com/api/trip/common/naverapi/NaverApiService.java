@@ -12,7 +12,8 @@ import java.util.List;
 @Service
 public class NaverApiService {
 
-    private final List<String> tagList = Arrays.asList("부산", "제주", "서울", "크루즈", "일출", "해수욕장");
+    private final List<String> tagList = Arrays.asList("부산", "제주", "서울", "강원", "경남", "춘천", "목포", "여수", "안동", "경주", "대구", "대전", "전주"
+            ,"눈꽃", "스키", "보드", "바다", "요트", "해양스포츠", "단풍", "골프");
 
     public List<ShoppingItem> doFilterCategory(List<ShoppingItem> items){
         List<ShoppingItem> filteredItems = new ArrayList<>();
@@ -43,6 +44,13 @@ public class NaverApiService {
     }
 
     public List<String> extractTagNames(String title){
-        return tagList.stream().filter(tag -> title.contains(tag)).toList();
+        List<String> list = tagList.stream().filter(tag -> title.contains(tag)).toList();
+
+        if(title.contains("양양") || title.contains("속초") || title.contains("강릉") || title.contains("평창") || title.contains("강원"))
+            list.add("강원");
+        if(title.contains("여수") || title.contains("순천"))
+            list.add("여수");
+
+        return list;
     }
 }
