@@ -46,7 +46,7 @@ public class NaverApiService {
     public List<String> extractTagNames(String title){
         List<String> list = tagList.stream().filter(tag -> title.contains(tag)).toList();
 
-        if(title.contains("양양") || title.contains("속초") || title.contains("강릉"))
+        if(title.contains("양양") || title.contains("속초") || title.contains("강릉") || title.contains("평창") || title.contains("강원"))
             list.add("강원");
         if(title.contains("여수") || title.contains("순천"))
             list.add("여수");
