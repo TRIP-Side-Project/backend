@@ -20,10 +20,10 @@ public class NaverApiService {
         for (ShoppingItem item: items)
         {
             if(
-                item.getCategory1().equals("국내패키지/기타") ||
-                item.getCategory2().equals("국내패키지/기타") ||
-                item.getCategory3().equals("국내패키지/기타") ||
-                item.getCategory4().equals("국내패키지/기타")
+                    item.getCategory1().equals("국내패키지/기타") ||
+                            item.getCategory2().equals("국내패키지/기타") ||
+                            item.getCategory3().equals("국내패키지/기타") ||
+                            item.getCategory4().equals("국내패키지/기타")
             )
                 filteredItems.add(item);
         }
@@ -44,7 +44,8 @@ public class NaverApiService {
     }
 
     public List<String> extractTagNames(String title){
-        List<String> list = tagList.stream().filter(tag -> title.contains(tag)).toList();
+        List<String> list = new ArrayList<>();
+        list.addAll(tagList.stream().filter(tag -> title.contains(tag)).toList());
 
         if(title.contains("양양") || title.contains("속초") || title.contains("강릉") || title.contains("평창") || title.contains("강원"))
             list.add("강원");
