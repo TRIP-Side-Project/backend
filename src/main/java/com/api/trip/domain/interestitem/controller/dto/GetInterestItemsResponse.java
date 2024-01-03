@@ -3,7 +3,6 @@ package com.api.trip.domain.interestitem.controller.dto;
 import com.api.trip.domain.interestitem.model.InterestItem;
 import com.api.trip.domain.item.controller.dto.GetItemResponse;
 import com.api.trip.domain.item.controller.dto.GetItemsResponse;
-import com.api.trip.domain.item.model.Item;
 import lombok.Builder;
 import lombok.Getter;
 import org.springframework.data.domain.Page;
@@ -15,11 +14,8 @@ import java.util.stream.Collectors;
 @Builder
 public class GetInterestItemsResponse {
 
-    private long totalCount;
-    private int currentPage;
-    private int totalPage;
     private Pagination pagination;
-    private List<GetItemResponse> itemList;
+    private List<GetInterestItemResponse> itemList;
 
     @Getter
     @Builder
@@ -33,7 +29,7 @@ public class GetInterestItemsResponse {
         private int requestSize;
         private int articleSize;
 
-        private static Pagination of(Page<Item> page) {
+        private static Pagination of(Page<InterestItem> page) {
             return builder()
                     .totalPages(page.getTotalPages())
                     .totalElements(page.getTotalElements())
@@ -47,11 +43,11 @@ public class GetInterestItemsResponse {
     }
 
 
-    public static GetItemsResponse of(Page<InterestItem> page)
+    public static GetInterestItemsResponse of(Page<InterestItem> page)
     {
-        return GetItemsResponse.builder()
-
-                .itemList(page.getContent().stream().map(InterestItem::getItem).map(GetItemResponse::of).collect(Collectors.toList()))
+        return GetInterestItemsResponse.builder()
+                .pagination(Pagination.of(page))
+                .itemList(page.getContent().stream().map(InterestItem::getItem).map(GetInterestItemResponse::of).collect(Collectors.toList()))
                 .build();
     }
 
