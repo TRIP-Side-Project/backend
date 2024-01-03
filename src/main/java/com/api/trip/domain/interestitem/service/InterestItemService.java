@@ -41,7 +41,7 @@ public class InterestItemService {
     }
 
     @Transactional(readOnly = true)
-    public GetItemsResponse getInterestItems(Pageable pageable) {
+    public GetInterestItemsResponse getInterestItems(Pageable pageable) {
         Member member = memberService.getAuthenticationMember();
         Page<InterestItem> page = interestItemRepository.findByMember(member, pageable);
 

@@ -1,6 +1,7 @@
 package com.api.trip.domain.interestitem.controller;
 
 import com.api.trip.domain.interestitem.controller.dto.CreateInterestItemRequest;
+import com.api.trip.domain.interestitem.controller.dto.GetInterestItemsResponse;
 import com.api.trip.domain.interestitem.service.InterestItemService;
 import com.api.trip.domain.item.controller.dto.CreateItemRequest;
 import com.api.trip.domain.item.controller.dto.GetItemResponse;
@@ -28,8 +29,8 @@ public class InterestItemController {
     }
 
     @GetMapping
-    public ResponseEntity<GetItemsResponse> getInterestItems(
-            @PageableDefault(size = 8) Pageable pageable
+    public ResponseEntity<GetInterestItemsResponse> getInterestItems(
+            @PageableDefault(size = 6) Pageable pageable
     ) {
         return ResponseEntity.ok(interestItemService.getInterestItems(pageable));
     }
