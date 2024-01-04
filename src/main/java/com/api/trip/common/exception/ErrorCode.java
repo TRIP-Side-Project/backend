@@ -12,6 +12,9 @@ public enum ErrorCode {
     INVALID_IMAGE_TYPE("유효하지 않은 파일 형식입니다.", HttpStatus.BAD_REQUEST),
     AWS_FAIL_UPLOAD("AWS S3 업로드 실패!", HttpStatus.CONFLICT),
 
+    NOT_MATCH_EMAIL_TOKEN("이메일 인증 토큰이 일치하지 않습니다.", HttpStatus.CONFLICT),
+    EXPIRED_EMAIL_TOKEN("이메일 인증 토큰을 찾을 수 없습니다.(expired)", HttpStatus.NOT_FOUND),
+
     // 401
     LOGOUTED_TOKEN("이미 로그아웃 처리된 토큰입니다.", HttpStatus.UNAUTHORIZED),
     SNATCH_TOKEN("Refresh Token 탈취를 감지하여 로그아웃 처리됩니다.", HttpStatus.UNAUTHORIZED),

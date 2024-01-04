@@ -4,9 +4,10 @@ import com.api.trip.common.exception.ErrorCode;
 import com.api.trip.common.exception.custom_exception.BadRequestException;
 import com.api.trip.common.exception.custom_exception.DuplicateException;
 import com.api.trip.common.exception.custom_exception.NotFoundException;
+import com.api.trip.common.exception.custom_exception.NotMatchException;
 import com.api.trip.domain.email.model.EmailAuth;
+import com.api.trip.domain.email.repository.EmailRedisRepository;
 import com.api.trip.domain.email.repository.EmailAuthRepository;
-import com.api.trip.domain.member.controller.dto.EmailResponse;
 import com.api.trip.domain.member.controller.dto.FindPasswordRequest;
 import com.api.trip.domain.member.model.Member;
 import com.api.trip.domain.member.repository.MemberRepository;
@@ -24,7 +25,6 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.security.SecureRandom;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -36,6 +36,7 @@ public class EmailService {
     private final MemberService memberService;
     private final JavaMailSender javaMailSender;
     private final EmailAuthRepository emailAuthRepository;
+    private final EmailRedisRepository emailRedisRepository;
     private final MemberRepository memberRepository;
     private final SpringTemplateEngine templateEngine;
 
@@ -43,7 +44,7 @@ public class EmailService {
     private String host;
 
     @Async
-    public void send(String email, String authToken) {
+    public void send(String email) {
 
         // TODO: 비동기 메서드 예외 핸들러 추가
         memberRepository.findByEmail(email).ifPresent(it -> {
@@ -52,9 +53,17 @@ public class EmailService {
 
         MimeMessage message = javaMailSender.createMimeMessage();
 
+        // redis에 해당 이메일에 대한 토큰이 있으면 reids에서 삭제
+        if (emailRedisRepository.getToken(email).isPresent()) {
+            emailRedisRepository.deleteToken(email);
+        }
+
+        String token = UUID.randomUUID().toString();
+        emailRedisRepository.setToken(email, token);
+
         try {
             Context context = new Context();
-            context.setVariable("auth_url", "%s/%s/%s".formatted(host, email, authToken));
+            context.setVariable("auth_url", "%s/%s/%s".formatted(host, email, token));
 
             String html = templateEngine.process("email_auth_mail", context);
 
@@ -102,12 +111,15 @@ public class EmailService {
     }
 
     // 인증 메일 검증
-    public EmailResponse authEmail(String email, String authToken) {
-        EmailAuth emailAuth = emailAuthRepository.findValidAuthByEmail(email, authToken, LocalDateTime.now())
+    public boolean authEmail(String email, String authToken) {
+        String token = emailRedisRepository.getToken(email)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_EMAIL_TOKEN));
 
-        emailAuth.useToken(); // 토큰 사용 -> 만료
-        return EmailResponse.of(emailAuth.isExpired());
+        if (!token.matches(authToken)) {
+            throw new NotMatchException(ErrorCode.NOT_MATCH_EMAIL_TOKEN);
+        }
+
+        return true;
     }
 
     public String createEmailAuth(String email) {
