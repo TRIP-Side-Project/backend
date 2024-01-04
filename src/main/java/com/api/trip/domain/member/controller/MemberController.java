@@ -56,20 +56,20 @@ public class MemberController {
     @Operation(summary = "인증 메일 전송", description = "인증 링크를 포함한 메일을 발송한다.")
     @PostMapping("/send-email/{email}")
     public void sendAuthEmail(@PathVariable String email) {
-        emailService.send(email, emailService.createEmailAuth(email));
+        emailService.send(email);
     }
 
     // 이메일 인증
     @Operation(summary = "이메일 인증", description = "인증 메일이 유효한지 검사하고 인증을 처리한다.")
     @GetMapping("/auth-email/{email}/{authToken}")
     public ResponseEntity<EmailResponse> emailAndAuthToken(@PathVariable String email, @PathVariable String authToken) {
-        EmailResponse emailResponse = emailService.authEmail(email, authToken);
+        boolean isAuth = emailService.authEmail(email, authToken);
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("message", emailResponse.getMessage());
-        headers.add("auth-email", String.valueOf(emailResponse.isAuthEmail()));
+        headers.add("message", "success email auth!");
+        headers.add("auth-email", String.valueOf(isAuth));
 
-        return ResponseEntity.ok().headers(headers).body(emailResponse);
+        return ResponseEntity.ok().headers(headers).body(EmailResponse.of(isAuth));
     }
 
     @Operation(summary = "비밀번호 찾기", description = "임시 비밀번호를 발급한다.")
