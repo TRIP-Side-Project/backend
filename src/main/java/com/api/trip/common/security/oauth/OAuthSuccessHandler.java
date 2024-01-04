@@ -36,11 +36,11 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
         String email = oAuth2User.getAttribute("email");
-        Optional<Member> findMember = memberRepository.findByEmail(email);
+        SocialCode socialCode = oAuth2User.getAttribute("socialCode");
+        Optional<Member> findMember = memberRepository.findByEmailAndSocialCode(email, socialCode);
 
         String name = oAuth2User.getAttribute("name");
         String picture = oAuth2User.getAttribute("picture");
-        SocialCode socialCode = oAuth2User.getAttribute("socialCode");
         String socialAccessToken = oAuth2User.getAttribute("accessToken");
 
         // 회원이 아닌 경우에 회원 가입 진행
