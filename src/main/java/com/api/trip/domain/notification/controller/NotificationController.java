@@ -1,6 +1,10 @@
 package com.api.trip.domain.notification.controller;
 
+import com.api.trip.common.exception.CustomException;
+import com.api.trip.common.exception.ErrorCode;
 import com.api.trip.common.sse.emitter.SseEmitterMap;
+import com.api.trip.domain.member.model.Member;
+import com.api.trip.domain.member.repository.MemberRepository;
 import com.api.trip.domain.notification.controller.dto.DeleteNotificationRequest;
 import com.api.trip.domain.notification.controller.dto.GetMyNotificationsResponse;
 import com.api.trip.domain.notification.controller.dto.ReadNotificationRequest;
@@ -19,15 +23,19 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class NotificationController {
 
+    private final MemberRepository memberRepository;
     private final NotificationService notificationService;
     private final SseEmitterMap sseEmitterMap;
 
     @GetMapping(value = "/connect", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<SseEmitter> connect() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
+
         SseEmitter sseEmitter = new SseEmitter(3600000L);
-        sseEmitterMap.put(email, sseEmitter);
-        sseEmitterMap.send(email, "connect", LocalDateTime.now());
+        sseEmitterMap.put(member.getId(), sseEmitter);
+        sseEmitterMap.send(member.getId(), "connect", LocalDateTime.now());
         return ResponseEntity.ok(sseEmitter);
     }
 

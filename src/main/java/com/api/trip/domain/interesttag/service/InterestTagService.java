@@ -5,13 +5,14 @@ import com.api.trip.domain.interesttag.respository.InterestTagRepository;
 import com.api.trip.domain.member.model.Member;
 import com.api.trip.domain.tag.model.Tag;
 import com.api.trip.domain.tag.repository.TagRepository;
-import com.api.trip.domain.tag.service.TagService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -45,8 +46,8 @@ public class InterestTagService {
     }
 
     @Transactional(readOnly = true)
-    public List<Member> getMemberByTags(List<String> tagNames){
+    public Set<Member> getMembersByTagNames(List<String> tagNames) {
         List<InterestTag> interestTags = interestTagRepository.findInterestTagsByTagNames(tagNames);
-        return interestTags.stream().map(InterestTag::getMember).toList();
+        return interestTags.stream().map(InterestTag::getMember).collect(Collectors.toSet());
     }
 }

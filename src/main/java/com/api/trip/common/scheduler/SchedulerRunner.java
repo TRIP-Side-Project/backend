@@ -21,6 +21,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.List;
+import java.util.Set;
 
 @RequiredArgsConstructor
 @Component
@@ -55,8 +56,8 @@ public class SchedulerRunner {
                 List<CreateItemRequest> createItemRequests = naverApiService.toCreateItemRequest(shoppingItems);
                 for (CreateItemRequest createItemRequest : createItemRequests) {
                     Item item = itemService.createItem(createItemRequest);
-                    notificationService.createNotification(item, createItemRequest.getTagNames());
-                    sseEmitterMap.sendToAll("notification",new SseNotificationResponse(item.getId(), createItemRequest.getTagNames()));
+                    Set<Long> memberIds = notificationService.createNotifications(item, createItemRequest.getTagNames());
+                    sseEmitterMap.send(memberIds,"notification",new SseNotificationResponse(item.getId(), createItemRequest.getTagNames()));
                     /**
                      *
                      * 알림이 가져야할 데이터가 itemId, memberId

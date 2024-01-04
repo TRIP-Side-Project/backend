@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -27,8 +29,8 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final InterestTagService interestTagService;
 
-    public void createNotification(Item item, List<String> tagNames) {
-        List<Member> receivers = interestTagService.getMemberByTags(tagNames);
+    public Set<Long> createNotifications(Item item, List<String> tagNames) {
+        Set<Member> receivers = interestTagService.getMembersByTagNames(tagNames);
 
         receivers.forEach(member -> {
             notificationRepository.save(
@@ -38,6 +40,8 @@ public class NotificationService {
                             .build()
             );
         });
+
+        return receivers.stream().map(Member::getId).collect(Collectors.toSet());
     }
 
     @Transactional(readOnly = true)
