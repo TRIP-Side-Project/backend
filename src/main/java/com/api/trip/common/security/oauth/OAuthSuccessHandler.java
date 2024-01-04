@@ -59,7 +59,7 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         // OAuth2User 객체에서 권한 가져옴
         JwtToken jwtToken = jwtTokenProvider.createJwtToken(member.getEmail(), member.getRole().getValue());
 
-        String targetUrl = UriComponentsBuilder.fromUriString("https://dkoqktaeu3tic.cloudfront.net/home")
+        String targetUrl = UriComponentsBuilder.fromUriString("https://triptrip.site/home")
                 .queryParam("accessToken", jwtToken.getAccessToken())
                 .queryParam("refreshToken", jwtToken.getRefreshToken())
                 .queryParam("memberId", String.valueOf(member.getId()))
