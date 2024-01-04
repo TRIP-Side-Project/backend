@@ -38,7 +38,7 @@ public class SchedulerRunner {
      * 5분에 한번씩 api를 요청하여 데이터 갱신(중단조건에 걸릴때까지 50개씩 반복요청)
      * 데이터가 중복됐을 때(이미 존재하는 데이터)를 중단조건
      */
-    @Scheduled(initialDelay = "600000", fixedDelay = 600000)
+    @Scheduled(initialDelay = 600000, fixedDelay = 600000)
     public void updateData()
     {
 
