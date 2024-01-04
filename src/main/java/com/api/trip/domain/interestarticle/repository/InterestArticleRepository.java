@@ -13,4 +13,6 @@ public interface InterestArticleRepository extends JpaRepository<InterestArticle
     Optional<InterestArticle> findByMemberAndArticle(Member member, Article article);
 
     List<InterestArticle> findAllByMember(Member member);
+
+    Long countByMember_Id(Long memberId);
 }

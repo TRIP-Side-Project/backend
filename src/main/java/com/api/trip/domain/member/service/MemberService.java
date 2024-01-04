@@ -15,6 +15,7 @@ import com.api.trip.domain.aws.util.MultipartFileUtils;
 import com.api.trip.domain.aws.service.AmazonS3Service;
 import com.api.trip.domain.comment.repository.CommentRepository;
 import com.api.trip.domain.email.repository.EmailRedisRepository;
+import com.api.trip.domain.interestarticle.repository.InterestArticleRepository;
 import com.api.trip.domain.interestitem.repository.InterestItemRepository;
 import com.api.trip.domain.interesttag.service.InterestTagService;
 import com.api.trip.domain.member.controller.dto.*;
@@ -52,10 +53,11 @@ public class MemberService {
 
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
-    private final EmailRedisRepository emailRedisRepository;
     private final ArticleRepository articleRepository;
     private final CommentRepository commentRepository;
     private final InterestItemRepository interestItemRepository;
+    private final InterestArticleRepository interestArticleRepository;
+    private final EmailRedisRepository emailRedisRepository;
 
     private final OAuth2Revoke oAuth2Revoke;
     private final AmazonS3Service amazonS3Service;
@@ -127,11 +129,12 @@ public class MemberService {
     public MyPageResponse myPage() {
         Member member = getAuthenticationMember();
 
-        Long articleCount = articleRepository.countByWriter_Id(member.getId());
-        Long commentCount = commentRepository.countByWriter_Id(member.getId());
-        Long likeItemCount = interestItemRepository.countByMember_Id(member.getId());
+        long articleCount = articleRepository.countByWriter_Id(member.getId());
+        long likeArticleCount = interestArticleRepository.countByMember_Id(member.getId());
+        long commentCount = commentRepository.countByWriter_Id(member.getId());
+        long likeItemCount = interestItemRepository.countByMember_Id(member.getId());
 
-        long[] counts = {articleCount, commentCount, likeItemCount};
+        long[] counts = {articleCount, likeArticleCount, commentCount, likeItemCount};
         List<String> tags = interestTagService.getInterestTag(member);
 
         return MyPageResponse.of(member, counts, tags);
