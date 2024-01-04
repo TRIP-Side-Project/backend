@@ -10,6 +10,7 @@ import com.api.trip.domain.email.repository.EmailRedisRepository;
 import com.api.trip.domain.email.repository.EmailAuthRepository;
 import com.api.trip.domain.member.controller.dto.FindPasswordRequest;
 import com.api.trip.domain.member.model.Member;
+import com.api.trip.domain.member.model.SocialCode;
 import com.api.trip.domain.member.repository.MemberRepository;
 import com.api.trip.domain.member.service.MemberService;
 import jakarta.mail.MessagingException;
@@ -46,8 +47,7 @@ public class EmailService {
     @Async
     public void send(String email) {
 
-        // TODO: 비동기 메서드 예외 핸들러 추가
-        memberRepository.findByEmail(email).ifPresent(it -> {
+        memberRepository.findByEmailAndSocialCode(email, SocialCode.NORMAL).ifPresent(it -> {
             throw new DuplicateException(ErrorCode.ALREADY_JOINED);
         });
 

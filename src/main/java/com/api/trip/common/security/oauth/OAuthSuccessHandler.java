@@ -35,25 +35,25 @@ public class OAuthSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
-        String provider = oAuth2User.getAttribute("provider");
+        String email = oAuth2User.getAttribute("email");
+        SocialCode socialCode = oAuth2User.getAttribute("socialCode");
+        Optional<Member> findMember = memberRepository.findByEmailAndSocialCode(email, socialCode);
 
-        // KAKAO_user123@naver.com
-        String email = provider + "_" + oAuth2User.getAttribute("email");
-        Optional<Member> findMember = memberRepository.findByEmail(email);
+        String name = oAuth2User.getAttribute("name");
+        String picture = oAuth2User.getAttribute("picture");
+        String socialAccessToken = oAuth2User.getAttribute("accessToken");
 
         // 회원이 아닌 경우에 회원 가입 진행
         Member member = null;
         if (findMember.isEmpty()) {
-            // KAKAO_user123
-            String name = provider + "_" + oAuth2User.getAttribute("name");
-            String picture = oAuth2User.getAttribute("picture");
-            SocialCode socialCode = oAuth2User.getAttribute("socialCode");
-            String socialAccessToken = oAuth2User.getAttribute("accessToken");
-
             member = Member.of(email, "", name, picture, socialCode, socialAccessToken);
+
             memberRepository.save(member);
         } else {
             member = findMember.orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_MEMBER));
+            member.updateSocialMember(email, name, picture, socialAccessToken);
+
+            memberRepository.save(member);
         }
 
         // OAuth2User 객체에서 권한 가져옴

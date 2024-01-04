@@ -1,7 +1,6 @@
 package com.api.trip.domain.member.model;
 
 import com.api.trip.common.auditing.entity.BaseTimeEntity;
-import com.api.trip.domain.member.controller.dto.JoinRequest;
 import com.api.trip.domain.member.controller.dto.UpdateProfileRequest;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -76,6 +75,13 @@ public class Member extends BaseTimeEntity {
                 .socialCode(socialCode)
                 .socialAccessToken(socialAccessToken)
                 .build();
+    }
+
+    public void updateSocialMember(String email, String name, String picture, String socialAccessToken) {
+        this.email = email;
+        this.nickname = name;
+        this.profileImg = picture;
+        this.socialAccessToken = socialAccessToken;
     }
 
     public void changePassword(String password) {
