@@ -14,7 +14,7 @@ import com.api.trip.domain.article.repository.ArticleRepository;
 import com.api.trip.domain.aws.util.MultipartFileUtils;
 import com.api.trip.domain.aws.service.AmazonS3Service;
 import com.api.trip.domain.comment.repository.CommentRepository;
-import com.api.trip.domain.email.repository.EmailAuthRepository;
+import com.api.trip.domain.email.repository.EmailRedisRepository;
 import com.api.trip.domain.interestitem.repository.InterestItemRepository;
 import com.api.trip.domain.interesttag.service.InterestTagService;
 import com.api.trip.domain.member.controller.dto.*;
@@ -52,7 +52,7 @@ public class MemberService {
 
     private final PasswordEncoder passwordEncoder;
     private final MemberRepository memberRepository;
-    private final EmailAuthRepository emailAuthRepository;
+    private final EmailRedisRepository emailRedisRepository;
     private final ArticleRepository articleRepository;
     private final CommentRepository commentRepository;
     private final InterestItemRepository interestItemRepository;
@@ -79,9 +79,9 @@ public class MemberService {
             throw new DuplicateException(ErrorCode.ALREADY_JOINED);
         });
 
-        // 이메일 인증이 완료 여부 확인
-        emailAuthRepository.findTop1ByEmailAndExpiredIsTrueOrderByCreatedAtDesc(joinRequest.getEmail())
-                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND_EMAIL_TOKEN));
+        if (!emailRedisRepository.existToken(joinRequest.getEmail())) {
+            throw new NotFoundException(ErrorCode.EXPIRED_EMAIL_TOKEN);
+        }
 
         MultipartFile profileImg = joinRequest.getProfileImg();
 
@@ -107,6 +107,7 @@ public class MemberService {
         );
 
         memberRepository.save(member);
+        emailRedisRepository.deleteToken(joinRequest.getEmail());
     }
 
     // 로그인
