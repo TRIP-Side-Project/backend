@@ -28,7 +28,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import java.util.ArrayList;
 
 @Configuration
-@Profile("prod")
+@Profile("dev")
 @RequiredArgsConstructor
 public class DevInitData {
 
