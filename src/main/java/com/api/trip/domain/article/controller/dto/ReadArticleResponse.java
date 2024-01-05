@@ -20,6 +20,7 @@ public class ReadArticleResponse {
     private String writerNickname;
     private String writerRole;
     private String writerProfileImg;
+    private String writerIntro;
     private List<String> tags;
     private String content;
     private long viewCount;
@@ -34,6 +35,7 @@ public class ReadArticleResponse {
                 .title(article.getTitle())
                 .writerId(writer.getId())
                 .writerNickname(writer.getNickname())
+                .writerIntro(writer.getIntro())
                 .writerProfileImg(writer.getProfileImg())
                 .writerRole(writer.getRole().name())
                 .tags(articleTags.stream().map(articleTag -> articleTag.getTag().getName()).toList())
