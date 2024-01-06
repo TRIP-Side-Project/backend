@@ -1,10 +1,7 @@
 package com.api.trip.domain.member.service;
 
 import com.api.trip.common.exception.ErrorCode;
-import com.api.trip.common.exception.custom_exception.DuplicateException;
-import com.api.trip.common.exception.custom_exception.InvalidException;
-import com.api.trip.common.exception.custom_exception.NotFoundException;
-import com.api.trip.common.exception.custom_exception.NotMatchException;
+import com.api.trip.common.exception.custom_exception.*;
 import com.api.trip.common.security.jwt.JwtToken;
 import com.api.trip.common.security.jwt.JwtTokenProvider;
 import com.api.trip.common.security.oauth.OAuth2Revoke;
@@ -157,6 +154,11 @@ public class MemberService {
 
     // 회원 정보 수정
     public void updateProfile(UpdateProfileRequest updateProfileRequest) throws IOException {
+
+        if (updateProfileRequest.getTags().size() > 5) {
+            throw new BadRequestException(ErrorCode.OVER_COUNT_TAGS);
+        }
+
         Member member = getAuthenticationMember();
 
         MultipartFile profileImg = updateProfileRequest.getProfileImg();

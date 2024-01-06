@@ -14,6 +14,7 @@ public enum ErrorCode {
 
     NOT_MATCH_EMAIL_TOKEN("이메일 인증 토큰이 일치하지 않습니다.", HttpStatus.CONFLICT),
     EXPIRED_EMAIL_TOKEN("이메일 인증 토큰을 찾을 수 없습니다.(expired)", HttpStatus.NOT_FOUND),
+    OVER_COUNT_TAGS("관심 태그 개수는 최대 5개까지만 설정이 가능합니다.", HttpStatus.CONFLICT),
 
     // 401
     LOGOUTED_TOKEN("이미 로그아웃 처리된 토큰입니다.", HttpStatus.UNAUTHORIZED),
