@@ -29,6 +29,12 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final InterestTagService interestTagService;
 
+    public Long getMemberId(String email) {
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.UNAUTHORIZED));
+        return member.getId();
+    }
+
     public Set<Long> createNotifications(Item item, List<String> tagNames) {
         Set<Member> receivers = interestTagService.getMembersByTagNames(tagNames);
 
