@@ -29,10 +29,11 @@ public class NotificationController {
     @GetMapping(value = "/connect", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public ResponseEntity<SseEmitter> connect() {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        /*
         if (email.equals("anonymous")) {
             throw new CustomException(ErrorCode.UNAUTHORIZED);
         }
-
+        */
         Long memberId = notificationService.getMemberId(email);
         SseEmitter sseEmitter = new SseEmitter(3600000L);
         sseEmitterMap.put(memberId, sseEmitter);
