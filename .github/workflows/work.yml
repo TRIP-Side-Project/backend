@@ -67,8 +67,6 @@ jobs:
           port: 22
           script: |
             sudo docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} -p ${{ secrets.DOCKER_HUB_PASSWORD }}
-            sudo docker stop trip_app || true
-            sudo docker rm trip_app || true
             sudo docker pull ${{ secrets.DOCKER_REPO }}/trip
             sudo docker run --name=trip_app --restart unless-stopped \
             -p 8080:8080 -e TZ=Asia/Seoul -d ${{ secrets.DOCKER_REPO }}/trip
